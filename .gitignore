@@ -1,0 +1,28 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/
+
+# C/C++ build artifacts (this repo currently contains local C++ test files)
+*.exe
+*.out
+*.o
+*.obj
+*.ilk
+*.pdb
+*.idb
+*.pch
+*.log
+
+# Local scratch files in this workspace (not part of the portfolio site)
+HelloWorld.cpp
+temp_view.txt
+
+# Build folders
+bin/
+build/
+dist/
+obj/
