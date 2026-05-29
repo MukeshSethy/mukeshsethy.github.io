@@ -88,9 +88,9 @@ body {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.35;
+  opacity: 0.18;
   background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 26px 26px;
+  background-size: 32px 32px;
   z-index: -2;
 }
 
@@ -349,6 +349,10 @@ a {
   font-size: clamp(36px, 5.8vw, 62px);
   line-height: 1.02;
   letter-spacing: -0.6px;
+  background: linear-gradient(90deg, rgba(245, 248, 255, 0.95), rgba(125, 211, 252, 0.92), rgba(45, 212, 191, 0.9));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .hero-subtitle {
@@ -409,6 +413,33 @@ a {
 
 .button.ghost {
   background: transparent;
+}
+
+.mini-button {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform 120ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.mini-button:hover {
+  transform: translateY(-1px);
+  background: var(--card-2);
+  border-color: var(--border-2);
+}
+
+.mini-button:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 .hero-badges {
@@ -477,7 +508,7 @@ a {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
   transform-origin: bottom;
   will-change: transform, opacity;
-  animation: signal 1.8s ease-in-out infinite;
+  animation: signal 1.8s ease-in-out 6;
 }
 
 .signal span:nth-child(2) {
@@ -837,6 +868,30 @@ code {
 .to-top:focus-visible {
   outline: none;
   box-shadow: var(--ring);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%) translateY(12px);
+  z-index: 66;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* Reveal animations (staggered via --d) */

@@ -166,6 +166,61 @@
     });
   }
 
+  // Copy-to-clipboard helpers (works on GitHub Pages and attempts fallback for local file opens).
+  const toast = $("#toast");
+  let toastTimer = 0;
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add("is-visible");
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove("is-visible");
+    }, 1800);
+  }
+
+  async function copyText(text) {
+    if (!text) return false;
+
+    // Modern API (requires secure context in most browsers).
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (_) {
+      // Fall through to legacy approach.
+    }
+
+    // Legacy fallback.
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      ta.style.top = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  document.addEventListener("click", async (e) => {
+    const t = e.target;
+    if (!t || !t.matches) return;
+    const btn = t.closest("[data-copy]");
+    if (!btn) return;
+    const text = btn.getAttribute("data-copy") || "";
+    const ok = await copyText(text);
+    showToast(ok ? "Copied" : "Copy not supported");
+  });
+
   // Scroll-reveal (staggered).
   const revealSelector =
     ".hero-copy, .hero-panel, .two-col > div, .timeline-card, .filters, .project-card, .skill-card, .resume-card, .contact-card, .section-title";
