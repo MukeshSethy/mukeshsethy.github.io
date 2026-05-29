@@ -4,7 +4,7 @@ Static personal portfolio website for GitHub Pages built with HTML, CSS, and van
 
 ## What's included
 
-- Light theme by default + light/dark toggle (saved to localStorage)
+- Single white/red/black theme (no theme toggle)
 - Sticky navbar with mobile hamburger menu
 - Smooth scrolling + mobile menu auto-close on navigation
 - Filterable project cards
@@ -18,6 +18,8 @@ Static personal portfolio website for GitHub Pages built with HTML, CSS, and van
 |-- index.html
 |-- style.css
 |-- script.js
+|-- assets/
+|   `-- profile.jpg
 |-- resume.pdf
 |-- .gitignore
 `-- README.md
@@ -33,6 +35,8 @@ Static personal portfolio website for GitHub Pages built with HTML, CSS, and van
   - Edit sections in `index.html` (About, Experience, Projects, Skills, Education, Contact).
 - Resume:
   - Replace `resume.pdf` with your latest version (keep the filename as `resume.pdf`).
+- Profile photo:
+  - Replace `assets/profile.jpg` with a new photo (keep the filename to avoid editing HTML).
 - Contact:
   - Update email/phone/location in `index.html`.
   - If you prefer not to publish your phone number publicly, remove the Phone card.

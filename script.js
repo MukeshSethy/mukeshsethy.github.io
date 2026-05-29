@@ -4,47 +4,8 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-  const html = document.documentElement;
   const prefersReducedMotion =
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Theme toggle (light by default; persist user choice).
-  const themeToggle = $(".theme-toggle");
-  const THEME_KEY = "theme";
-
-  function applyTheme(theme) {
-    const next = theme === "light" ? "light" : "dark";
-    html.setAttribute("data-theme", next);
-    try {
-      localStorage.setItem(THEME_KEY, next);
-    } catch (_) {
-      // localStorage may be unavailable; theme still applies for the session.
-    }
-    if (themeToggle) {
-      themeToggle.setAttribute(
-        "aria-label",
-        next === "dark" ? "Switch to light theme" : "Switch to dark theme"
-      );
-    }
-  }
-
-  function getStoredTheme() {
-    try {
-      return localStorage.getItem(THEME_KEY);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  const stored = getStoredTheme();
-  applyTheme(stored === "light" || stored === "dark" ? stored : "light");
-
-  if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      const current = html.getAttribute("data-theme") || "dark";
-      applyTheme(current === "dark" ? "light" : "dark");
-    });
-  }
 
   // Mobile nav menu.
   const navToggle = $(".nav-toggle");
