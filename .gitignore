@@ -20,6 +20,7 @@ Desktop.ini
 # Local scratch files in this workspace (not part of the portfolio site)
 HelloWorld.cpp
 temp_view.txt
+resume_extracted.txt
 
 # Build folders
 bin/

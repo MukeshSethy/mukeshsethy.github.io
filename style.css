@@ -635,6 +635,24 @@ img {
   gap: 12px;
 }
 
+.contact-grid-2 {
+  margin-top: 12px;
+}
+
+.contact-grid code,
+.resume-card code,
+.contact-note code,
+p code,
+li code {
+  font-family: var(--mono);
+  font-size: 0.95em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
 .link {
   color: var(--link);
   text-decoration: none;
