@@ -259,29 +259,33 @@ html[data-theme="dark"] .site-header {
 
 .hamburger {
   width: 18px;
-  height: 12px;
-  border-top: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
   position: relative;
+  box-shadow: 0 -6px 0 currentColor, 0 6px 0 currentColor;
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .hamburger::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  border-top: 2px solid currentColor;
-  transform: translateY(-50%);
+  inset: 0;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0;
+  transform: rotate(0deg);
+  transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .nav-toggle.is-open .hamburger {
-  border-top-color: transparent;
-  border-bottom-color: transparent;
+  box-shadow: none;
+  transform: rotate(45deg);
 }
 
 .nav-toggle.is-open .hamburger::after {
-  transform: translateY(-50%) rotate(90deg);
+  opacity: 1;
+  transform: rotate(90deg);
 }
 
 .theme-icon {
