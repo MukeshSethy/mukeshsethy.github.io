@@ -5,6 +5,8 @@
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
   const html = document.documentElement;
+  const prefersReducedMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // Theme toggle (dark by default; persist user choice).
   const themeToggle = $(".theme-toggle");
@@ -16,7 +18,7 @@
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch (_) {
-      // localStorage may be unavailable in some privacy modes; theme still applies for the session.
+      // localStorage may be unavailable; theme still applies for the session.
     }
     if (themeToggle) {
       themeToggle.setAttribute(
@@ -35,8 +37,7 @@
   }
 
   const stored = getStoredTheme();
-  if (stored === "light" || stored === "dark") applyTheme(stored);
-  else applyTheme("dark");
+  applyTheme(stored === "light" || stored === "dark" ? stored : "dark");
 
   if (themeToggle) {
     themeToggle.addEventListener("click", () => {
@@ -86,7 +87,7 @@
       if (e.key === "Escape") closeMenu();
     });
 
-    // Click outside closes the menu (mobile overlay behavior).
+    // Click outside closes the menu.
     document.addEventListener("click", (e) => {
       if (!navLinks.classList.contains("is-open")) return;
       const t = e.target;
@@ -97,7 +98,7 @@
 
     // If resized to desktop, ensure menu is closed.
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 760) closeMenu();
+      if (window.innerWidth > 920) closeMenu();
     });
   }
 
@@ -133,5 +134,96 @@
   // Footer year.
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
-})();
 
+  // Scroll progress bar + to-top button (rAF throttled).
+  const progressBar = $("#scroll-progress-bar");
+  const toTop = $("#to-top");
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => {
+      ticking = false;
+
+      const doc = document.documentElement;
+      const scrollTop = window.scrollY || doc.scrollTop || 0;
+      const max = Math.max(1, doc.scrollHeight - window.innerHeight);
+      const pct = Math.min(1, Math.max(0, scrollTop / max));
+
+      if (progressBar) progressBar.style.width = `${(pct * 100).toFixed(2)}%`;
+      if (toTop) toTop.classList.toggle("is-visible", scrollTop > 720);
+    });
+  }
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  onScroll();
+
+  if (toTop) {
+    toTop.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+    });
+  }
+
+  // Scroll-reveal (staggered).
+  const revealSelector =
+    ".hero-copy, .hero-panel, .two-col > div, .timeline-card, .filters, .project-card, .skill-card, .resume-card, .contact-card, .section-title";
+  const revealEls = $$(revealSelector).filter((el) => el && el.classList);
+
+  if (!prefersReducedMotion) {
+    // Add base class and per-element delay.
+    revealEls.forEach((el, i) => {
+      el.classList.add("reveal");
+      const d = Math.min(7, i % 8) * 70; // loops per "row" so it doesn't grow forever
+      el.style.setProperty("--d", `${d}ms`);
+    });
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
+    );
+
+    revealEls.forEach((el) => io.observe(el));
+  }
+
+  // Active nav link highlighting.
+  const navAnchors = $$(".nav-links a.nav-link");
+  const sections = navAnchors
+    .map((a) => {
+      const href = a.getAttribute("href") || "";
+      if (!href.startsWith("#")) return null;
+      const id = href.slice(1);
+      const el = document.getElementById(id);
+      return el ? { id, el } : null;
+    })
+    .filter(Boolean);
+
+  function setActiveNav(id) {
+    navAnchors.forEach((a) => {
+      const isActive = a.getAttribute("href") === `#${id}`;
+      a.classList.toggle("is-active", isActive);
+    });
+  }
+
+  if (sections.length) {
+    const navIO = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible && visible.target && visible.target.id) setActiveNav(visible.target.id);
+      },
+      { threshold: [0.2, 0.35, 0.5], rootMargin: "-20% 0px -60% 0px" }
+    );
+
+    sections.forEach(({ el }) => navIO.observe(el));
+  }
+})();
