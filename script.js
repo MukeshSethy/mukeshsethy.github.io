@@ -53,6 +53,7 @@
   function closeMenu() {
     if (!navLinks || !navToggle) return;
     navLinks.classList.remove("is-open");
+    navToggle.classList.remove("is-open");
     navToggle.setAttribute("aria-expanded", "false");
     navToggle.setAttribute("aria-label", "Open menu");
   }
@@ -60,6 +61,7 @@
   function openMenu() {
     if (!navLinks || !navToggle) return;
     navLinks.classList.add("is-open");
+    navToggle.classList.add("is-open");
     navToggle.setAttribute("aria-expanded", "true");
     navToggle.setAttribute("aria-label", "Close menu");
     const first = $(".nav-link", navLinks);
