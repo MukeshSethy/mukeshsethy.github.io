@@ -76,52 +76,22 @@ body {
   color: var(--text);
   line-height: 1.65;
   background:
-    radial-gradient(900px 520px at 12% 10%, rgba(34, 211, 238, 0.18), transparent 62%),
-    radial-gradient(860px 520px at 86% 14%, rgba(96, 165, 250, 0.16), transparent 60%),
-    radial-gradient(900px 640px at 50% 92%, rgba(45, 212, 191, 0.1), transparent 62%),
-    linear-gradient(180deg, var(--bg0), var(--bg1) 40%, var(--bg2));
+    radial-gradient(900px 520px at 10% 8%, rgba(34, 211, 238, 0.14), transparent 60%),
+    radial-gradient(860px 520px at 92% 14%, rgba(96, 165, 250, 0.12), transparent 62%),
+    linear-gradient(180deg, var(--bg0), var(--bg1) 44%, var(--bg2));
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Subtle blueprint grid without images */
-body::before {
-  content: "";
+/* Optional: subtle dot pattern (static, GPU-friendly). */
+.bg-dots {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.5;
-  background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(circle at 50% 10%, rgba(0, 0, 0, 0.75), transparent 62%);
+  opacity: 0.35;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 26px 26px;
   z-index: -2;
-}
-
-/* Aurora layer */
-body::after {
-  content: "";
-  position: fixed;
-  inset: -30% -20% -20% -20%;
-  pointer-events: none;
-  background:
-    radial-gradient(500px 260px at 20% 20%, rgba(34, 211, 238, 0.22), transparent 60%),
-    radial-gradient(520px 280px at 72% 26%, rgba(96, 165, 250, 0.22), transparent 60%),
-    radial-gradient(520px 320px at 56% 70%, rgba(45, 212, 191, 0.14), transparent 65%);
-  filter: blur(18px);
-  opacity: 0.9;
-  animation: aurora-drift 18s ease-in-out infinite alternate;
-  z-index: -3;
-}
-
-@keyframes aurora-drift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(-2%, 1.5%, 0) scale(1.03);
-  }
 }
 
 a {
@@ -177,7 +147,6 @@ a {
   z-index: 60;
   padding: 10px 0;
   background: var(--header-bg);
-  backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border);
 }
 
@@ -364,7 +333,6 @@ a {
     radial-gradient(900px 360px at 14% 14%, rgba(34, 211, 238, 0.32), transparent 60%),
     radial-gradient(800px 360px at 80% 18%, rgba(96, 165, 250, 0.26), transparent 58%),
     radial-gradient(900px 520px at 52% 80%, rgba(45, 212, 191, 0.16), transparent 60%);
-  filter: blur(12px);
   opacity: 0.9;
   z-index: -1;
 }
@@ -481,7 +449,6 @@ a {
   inset: -2px;
   background: linear-gradient(120deg, rgba(34, 211, 238, 0.25), rgba(96, 165, 250, 0.16), transparent 55%);
   opacity: 0.75;
-  filter: blur(18px);
   pointer-events: none;
 }
 
@@ -504,10 +471,12 @@ a {
 
 .signal span {
   width: 8px;
-  height: 18px;
+  height: 24px;
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(34, 211, 238, 0.95), rgba(34, 211, 238, 0.16));
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform-origin: bottom;
+  will-change: transform, opacity;
   animation: signal 1.8s ease-in-out infinite;
 }
 
@@ -524,14 +493,12 @@ a {
 @keyframes signal {
   0%,
   100% {
-    transform: translateY(0);
+    transform: scaleY(0.5);
     opacity: 0.55;
-    height: 12px;
   }
   50% {
-    transform: translateY(-3px);
+    transform: scaleY(1);
     opacity: 0.95;
-    height: 26px;
   }
 }
 
@@ -720,7 +687,6 @@ a {
   position: absolute;
   inset: -1px;
   background: linear-gradient(120deg, rgba(34, 211, 238, 0.18), rgba(96, 165, 250, 0.12), transparent 58%);
-  filter: blur(18px);
   opacity: 0;
   pointer-events: none;
   transition: opacity 180ms ease;
@@ -828,7 +794,6 @@ code {
   border-top: 1px solid var(--border);
   padding: 22px 0;
   background: var(--footer-bg);
-  backdrop-filter: blur(10px);
 }
 
 .footer-row {
@@ -878,19 +843,16 @@ code {
 .reveal {
   opacity: 0;
   transform: translateY(14px);
-  filter: blur(6px);
   transition:
     opacity 620ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    filter 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
   transition-delay: var(--d, 0ms);
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: none;
-  filter: none;
 }
 
 /* Ensure anchor offsets don't hide headings under the sticky nav */
@@ -950,9 +912,6 @@ section[id] {
   html {
     scroll-behavior: auto;
   }
-  body::after {
-    animation: none;
-  }
   .signal span {
     animation: none;
   }
@@ -960,7 +919,6 @@ section[id] {
     transition: none;
     opacity: 1;
     transform: none;
-    filter: none;
   }
   * {
     transition-duration: 0.001ms !important;
