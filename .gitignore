@@ -23,6 +23,7 @@ temp_view.txt
 resume_extracted.txt
 _rapyuta_home.html
 style.css.bak
+assets/_extract/
 
 # Build folders
 bin/
