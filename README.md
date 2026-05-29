@@ -4,7 +4,7 @@ Static personal portfolio website for GitHub Pages built with HTML, CSS, and van
 
 ## What's included
 
-- Dark theme by default + light/dark toggle (saved to localStorage)
+- Light theme by default + light/dark toggle (saved to localStorage)
 - Sticky navbar with mobile hamburger menu
 - Smooth scrolling + mobile menu auto-close on navigation
 - Filterable project cards
@@ -59,4 +59,3 @@ Static personal portfolio website for GitHub Pages built with HTML, CSS, and van
 ## Notes
 
 - No analytics, trackers, or external libraries are used.
-

@@ -8,7 +8,7 @@
   const prefersReducedMotion =
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Theme toggle (dark by default; persist user choice).
+  // Theme toggle (light by default; persist user choice).
   const themeToggle = $(".theme-toggle");
   const THEME_KEY = "theme";
 
@@ -37,7 +37,7 @@
   }
 
   const stored = getStoredTheme();
-  applyTheme(stored === "light" || stored === "dark" ? stored : "dark");
+  applyTheme(stored === "light" || stored === "dark" ? stored : "light");
 
   if (themeToggle) {
     themeToggle.addEventListener("click", () => {
