@@ -178,6 +178,17 @@
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
 
+  // Futuristic hero FX: interactive flow-field trails (canvas).
+  const heroFxCanvas = $("#hero-fx");
+  if (heroFxCanvas && !prefersReducedMotion) {
+    initHeroFx(heroFxCanvas);
+  }
+
+  // Pointer-reactive 3D tilt + glare for cards.
+  if (!prefersReducedMotion) {
+    initTiltCards();
+  }
+
   // Scroll progress bar + to-top button (rAF throttled).
   const progressBar = $("#scroll-progress-bar");
   const toTop = $("#to-top");
@@ -379,5 +390,288 @@
     );
 
     sections.forEach(({ el }) => navIO.observe(el));
+  }
+
+  function initTiltCards() {
+    const mq = window.matchMedia
+      ? window.matchMedia("(hover: hover) and (pointer: fine)")
+      : null;
+    if (!mq || !mq.matches) return;
+
+    const cards = $$(".project-card, .timeline-card, .offering-card");
+    if (!cards.length) return;
+
+    cards.forEach((el) => attachTilt(el));
+  }
+
+  function attachTilt(el) {
+    let raf = 0;
+    let px = 0;
+    let py = 0;
+    const max = el.classList.contains("project-card") ? 7 : 6;
+
+    function reset() {
+      el.style.setProperty("--rx", "0deg");
+      el.style.setProperty("--ry", "0deg");
+      el.style.setProperty("--mx", "50%");
+      el.style.setProperty("--my", "50%");
+    }
+
+    function update() {
+      raf = 0;
+      const r = el.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (px - r.left) / Math.max(1, r.width)));
+      const y = Math.max(0, Math.min(1, (py - r.top) / Math.max(1, r.height)));
+
+      const dx = x - 0.5;
+      const dy = y - 0.5;
+
+      // Rotate "towards" the cursor.
+      const rx = (-dy * max).toFixed(2);
+      const ry = (dx * max).toFixed(2);
+
+      el.style.setProperty("--rx", `${rx}deg`);
+      el.style.setProperty("--ry", `${ry}deg`);
+      el.style.setProperty("--mx", `${(x * 100).toFixed(2)}%`);
+      el.style.setProperty("--my", `${(y * 100).toFixed(2)}%`);
+    }
+
+    el.addEventListener(
+      "pointermove",
+      (e) => {
+      px = e.clientX;
+      py = e.clientY;
+      if (raf) return;
+      raf = window.requestAnimationFrame(update);
+      },
+      { passive: true }
+    );
+
+    el.addEventListener("pointerleave", () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      raf = 0;
+      reset();
+    });
+
+    reset();
+  }
+
+  function initHeroFx(canvas) {
+    const hero = canvas.closest(".hero") || canvas.parentElement;
+    const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
+    if (!hero || !ctx) return;
+
+    let w = 1;
+    let h = 1;
+    let dpr = 1;
+    let particles = [];
+    let raf = 0;
+    let t = 0;
+
+    const pointer = {
+      x: 0,
+      y: 0,
+      dx: 0,
+      dy: 0,
+      down: false,
+      has: false,
+    };
+
+    function clamp(v, a, b) {
+      return Math.max(a, Math.min(b, v));
+    }
+
+    function noise(x, y, tt) {
+      // Cheap "flowy" scalar field; good enough for curl-like motion.
+      const a = 0.0021;
+      const b = 0.0019;
+      const c = 0.0012;
+      return (
+        Math.sin(x * a + tt * 0.0011) +
+        Math.cos(y * b - tt * 0.0013) +
+        Math.sin((x + y) * c + tt * 0.0007)
+      );
+    }
+
+    function curl(x, y, tt) {
+      const e = 1.35;
+      const n1 = noise(x, y + e, tt);
+      const n2 = noise(x, y - e, tt);
+      const a = (n1 - n2) / (2 * e);
+      const n3 = noise(x + e, y, tt);
+      const n4 = noise(x - e, y, tt);
+      const b = (n3 - n4) / (2 * e);
+      // Rotated gradient => swirling vector field.
+      return { x: a, y: -b };
+    }
+
+    function reseed() {
+      const target = clamp(Math.floor((w * h) / 3200), 260, 860);
+      particles = Array.from({ length: target }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        s: 0.35 + Math.random() * 0.9,
+      }));
+
+      pointer.x = w * 0.32;
+      pointer.y = h * 0.46;
+    }
+
+    function resize() {
+      const r = hero.getBoundingClientRect();
+      w = Math.max(1, Math.floor(r.width));
+      h = Math.max(1, Math.floor(r.height));
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      reseed();
+    }
+
+    function burst(px, py) {
+      for (let i = 0; i < 18; i++) {
+        const ang = (i / 18) * Math.PI * 2;
+        const sp = 2.4 + Math.random() * 2.0;
+        particles.push({
+          x: px + (Math.random() - 0.5) * 18,
+          y: py + (Math.random() - 0.5) * 18,
+          vx: Math.cos(ang) * sp,
+          vy: Math.sin(ang) * sp,
+          s: 0.8 + Math.random() * 1.2,
+        });
+      }
+      if (particles.length > 1100) particles.splice(0, particles.length - 1100);
+    }
+
+    function draw() {
+      raf = window.requestAnimationFrame(draw);
+      t += 16;
+
+      // Fade previous frame (trail effect).
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = "rgba(0,0,0,0.065)";
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw new strokes additively.
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      // Slowly drift the pointer if the user isn't interacting.
+      if (!pointer.has) {
+        pointer.x = w * (0.38 + 0.08 * Math.sin(t * 0.00035));
+        pointer.y = h * (0.46 + 0.12 * Math.cos(t * 0.00028));
+      }
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        const ox = p.x;
+        const oy = p.y;
+
+        const v = curl(p.x, p.y, t);
+        p.vx += v.x * 0.55 * p.s;
+        p.vy += v.y * 0.55 * p.s;
+
+        // Pointer interaction (swirl/pull).
+        const dx = pointer.x - p.x;
+        const dy = pointer.y - p.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < 180 * 180) {
+          const d = Math.sqrt(d2) || 1;
+          const pull = (1 - d / 180) * (pointer.down ? 1.8 : 1.0);
+          // Add a tangential component for "fluid" rotation.
+          p.vx += (-dy / d) * pull * 0.65 + (dx / d) * pull * 0.12;
+          p.vy += (dx / d) * pull * 0.65 + (dy / d) * pull * 0.12;
+        }
+
+        p.vx *= 0.92;
+        p.vy *= 0.92;
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap.
+        if (p.x < -20) p.x = w + 20;
+        if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20;
+        if (p.y > h + 20) p.y = -20;
+
+        // Two-tone strokes: red + cool white.
+        const a = 0.10 + Math.min(0.22, Math.abs(p.vx) + Math.abs(p.vy)) * 0.08;
+
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = `rgba(225,26,39,${a})`;
+        ctx.beginPath();
+        ctx.moveTo(ox, oy);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+
+        ctx.lineWidth = 0.9;
+        ctx.strokeStyle = `rgba(255,255,255,${a * 0.55})`;
+        ctx.beginPath();
+        ctx.moveTo(ox + 0.4, oy + 0.2);
+        ctx.lineTo(p.x + 0.4, p.y + 0.2);
+        ctx.stroke();
+      }
+    }
+
+    function setPointerFromEvent(e) {
+      const r = hero.getBoundingClientRect();
+      const x = clamp(e.clientX - r.left, 0, r.width);
+      const y = clamp(e.clientY - r.top, 0, r.height);
+      pointer.dx = x - pointer.x;
+      pointer.dy = y - pointer.y;
+      pointer.x = x;
+      pointer.y = y;
+      pointer.has = true;
+
+      // Feed a subtle "spotlight" position into CSS for the hero + portrait gloss.
+      hero.style.setProperty("--hx", `${((x / Math.max(1, r.width)) * 100).toFixed(2)}%`);
+      hero.style.setProperty("--hy", `${((y / Math.max(1, r.height)) * 100).toFixed(2)}%`);
+    }
+
+    hero.addEventListener(
+      "pointermove",
+      (e) => {
+        setPointerFromEvent(e);
+      },
+      { passive: true }
+    );
+
+    hero.addEventListener("pointerleave", () => {
+      pointer.has = false;
+      pointer.down = false;
+    });
+
+    hero.addEventListener("pointerdown", (e) => {
+      pointer.down = true;
+      setPointerFromEvent(e);
+      burst(pointer.x, pointer.y);
+    });
+
+    window.addEventListener("pointerup", () => {
+      pointer.down = false;
+    });
+
+    // Keep the canvas aligned to the hero section.
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(hero);
+    window.addEventListener("resize", resize);
+    resize();
+
+    // Pause animation in background tabs.
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        window.cancelAnimationFrame(raf);
+        raf = 0;
+      } else if (!raf) {
+        draw();
+      }
+    });
+
+    draw();
   }
 })();
