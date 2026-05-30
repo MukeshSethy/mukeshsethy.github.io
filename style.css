@@ -480,6 +480,9 @@ html.has-cursor-fx select {
 /* Sections */
 .section {
   padding: 62px 0;
+  /* Big perf win on long pages: browsers can skip painting offscreen sections. */
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
 }
 
 .section-title {
@@ -2440,4 +2443,35 @@ code {
   .cursor-fx {
     display: none !important;
   }
+}
+
+/* Performance tiers (set via JS on <html>) */
+html.perf-med .site-header,
+html.perf-low .site-header {
+  backdrop-filter: none;
+}
+
+html.perf-med .hello-disk,
+html.perf-low .hello-disk {
+  backdrop-filter: none;
+}
+
+html.perf-med .ambient-fx,
+html.perf-low .ambient-fx {
+  display: none;
+}
+
+html.perf-low body::before {
+  transform: none;
+  opacity: 0.5;
+}
+
+html.perf-low .hero-fx {
+  display: none;
+}
+
+html.perf-low .hero::after,
+html.perf-low .hero-stripe::before,
+html.perf-low .portrait::before {
+  animation: none;
 }

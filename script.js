@@ -13,14 +13,31 @@
     const coarse =
       window.matchMedia && window.matchMedia("(pointer: coarse), (hover: none)").matches;
     const small = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 760;
+    const saveData =
+      navigator.connection && typeof navigator.connection.saveData === "boolean"
+        ? navigator.connection.saveData
+        : false;
+    const mem =
+      typeof navigator.deviceMemory === "number" && Number.isFinite(navigator.deviceMemory)
+        ? navigator.deviceMemory
+        : 0;
 
-    let tier = "high";
-    if (prefersReducedMotion || coarse) tier = "low";
-    else if (cores <= 4 || small) tier = "low";
-    else if (cores <= 8) tier = "med";
+    // Default to "med" unless we are fairly sure the device can handle "high".
+    let tier = "med";
+    if (prefersReducedMotion || coarse || saveData) tier = "low";
+    else if (cores <= 4 || small || (mem && mem <= 4)) tier = "low";
+    else if (cores <= 8 || (mem && mem <= 8)) tier = "med";
+    else tier = "high";
 
-    return { tier, cores, coarse, small };
+    return { tier, cores, coarse, small, saveData, mem };
   })();
+
+  // Used by CSS to adjust costly effects automatically.
+  try {
+    document.documentElement.classList.add(`perf-${perf.tier}`);
+  } catch (_) {
+    // Ignore.
+  }
 
   function runWhenIdle(cb, timeout = 650) {
     try {
@@ -206,20 +223,20 @@
 
   // Ambient background FX (canvas).
   const ambientFxCanvas = $("#ambient-fx");
-  if (ambientFxCanvas && !prefersReducedMotion) {
+  if (ambientFxCanvas && !prefersReducedMotion && perf.tier === "high") {
     // Defer to idle time so initial paint remains quick.
     runWhenIdle(() => initAmbientFx(ambientFxCanvas), 900);
   }
 
   // Pointer light overlay (desktop fine pointer only).
   const pointerLight = $("#pointer-light");
-  if (pointerLight && !prefersReducedMotion && !perf.coarse) {
+  if (pointerLight && !prefersReducedMotion && !perf.coarse && perf.tier === "high") {
     runWhenIdle(() => initPointerLight(pointerLight), 520);
   }
 
   // Cursor FX (desktop fine pointer only).
   const cursorFx = $("#cursor-fx");
-  if (cursorFx && !prefersReducedMotion && !perf.coarse) {
+  if (cursorFx && !prefersReducedMotion && !perf.coarse && perf.tier !== "low") {
     runWhenIdle(() => initCursorFx(cursorFx), 700);
   }
 
@@ -231,7 +248,7 @@
 
   // Futuristic hero FX: interactive flow-field trails (canvas).
   const heroFxCanvas = $("#hero-fx");
-  if (heroFxCanvas && !prefersReducedMotion) {
+  if (heroFxCanvas && !prefersReducedMotion && perf.tier !== "low") {
     // Let the browser paint the hero once before starting the canvas loop.
     window.requestAnimationFrame(() => window.requestAnimationFrame(() => initHeroFx(heroFxCanvas)));
   }
@@ -916,9 +933,9 @@
     let t = 0;
     let last = -1;
 
-    const targetFps = perf.tier === "high" ? 30 : perf.tier === "med" ? 24 : 18;
+    const targetFps = perf.tier === "high" ? 24 : perf.tier === "med" ? 18 : 12;
     const frameMs = 1000 / targetFps;
-    const dprCap = perf.tier === "high" ? 1.75 : perf.tier === "med" ? 1.5 : 1.25;
+    const dprCap = perf.tier === "high" ? 1.5 : perf.tier === "med" ? 1.25 : 1.0;
 
     const pointer = { x: 0, y: 0, has: false };
     let pts = [];
@@ -1117,9 +1134,9 @@
     let last = -1;
     let running = true;
 
-    const targetFps = perf.tier === "high" ? 45 : perf.tier === "med" ? 36 : 28;
+    const targetFps = perf.tier === "high" ? 36 : perf.tier === "med" ? 30 : 22;
     const frameMs = 1000 / targetFps;
-    const dprCap = perf.tier === "high" ? 2 : perf.tier === "med" ? 1.75 : 1.5;
+    const dprCap = perf.tier === "high" ? 1.75 : perf.tier === "med" ? 1.5 : 1.25;
     const influence = perf.tier === "high" ? 180 : perf.tier === "med" ? 170 : 150;
     const drawWhite = perf.tier === "high";
     const showNodes = perf.tier !== "low";
