@@ -265,9 +265,57 @@
     showToast(ok ? "Copied" : "Copy not supported");
   });
 
+  // Contact form: select topics + open a prefilled mailto draft (works offline).
+  const CONTACT_EMAIL = "mukeshatnitr@gmail.com";
+  const topicPills = $$(".topic-pill");
+  const contactForm = $("#contact-form");
+
+  topicPills.forEach((btn) => {
+    btn.setAttribute("aria-pressed", "false");
+    btn.addEventListener("click", () => {
+      const isActive = btn.classList.toggle("is-active");
+      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  });
+
+  if (contactForm) {
+    contactForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const fd = new FormData(contactForm);
+      const name = String(fd.get("name") || "").trim();
+      const email = String(fd.get("email") || "").trim();
+      const company = String(fd.get("company") || "").trim();
+      const message = String(fd.get("message") || "").trim();
+
+      const topics = topicPills
+        .filter((b) => b.classList.contains("is-active"))
+        .map((b) => String(b.getAttribute("data-topic") || b.textContent || "").trim())
+        .filter(Boolean);
+
+      const subject = topics.length ? `Portfolio: ${topics.join(", ")}` : "Portfolio inquiry";
+      const bodyLines = [
+        `Name: ${name || "-"}`,
+        `Email: ${email || "-"}`,
+        `Company: ${company || "-"}`,
+        `Topics: ${topics.length ? topics.join(", ") : "-"}`,
+        "",
+        message || "",
+      ];
+
+      const mailto =
+        `mailto:${CONTACT_EMAIL}` +
+        `?subject=${encodeURIComponent(subject)}` +
+        `&body=${encodeURIComponent(bodyLines.join("\\n"))}`;
+
+      showToast("Opening email client...");
+      window.location.href = mailto;
+    });
+  }
+
   // Scroll-reveal (staggered).
   const revealSelector =
-    ".hero-copy, .hero-panel, .two-col > div, .timeline-card, .filters, .project-card, .skill-card, .resume-card, .contact-card, .section-title";
+    ".hero-copy, .hero-panel, .offering-head, .offering-rail, .offering-card, .timeline-card, .filters, .project-card, .snapshot-copy, .snapshot-art, .stat, .about-body, .resume-card, .field, .topic-pill, .send-button, .section-title";
   const revealEls = $$(revealSelector).filter((el) => el && el.classList);
 
   if (!prefersReducedMotion) {

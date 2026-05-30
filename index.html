@@ -22,284 +22,182 @@
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <div class="bg-dots" aria-hidden="true"></div>
     <div class="scroll-progress" aria-hidden="true">
       <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
     </div>
 
-    <header class="site-header">
-      <nav class="nav" aria-label="Primary">
-        <a class="brand" href="#home">
-          <span class="brand-mark" aria-hidden="true"></span>
-          <span class="brand-text">Mukesh Sethy</span>
-        </a>
+    <div class="page">
+      <div class="sheet">
+        <header class="site-header">
+          <nav class="mast" aria-label="Primary">
+            <a class="mast-mark" href="#home" aria-label="Home">it&rsquo;s me</a>
 
-        <button
-          class="icon-button nav-toggle"
-          type="button"
-          aria-label="Open menu"
-          aria-controls="nav-links"
-          aria-expanded="false"
-        >
-          <span class="hamburger" aria-hidden="true"></span>
-        </button>
-
-        <div class="nav-links" id="nav-links">
-          <a class="nav-link" href="#about">About</a>
-          <a class="nav-link" href="#experience">Experience</a>
-
-          <div class="nav-mega">
-            <button
-              class="nav-link nav-mega-toggle"
-              type="button"
-              aria-expanded="false"
-              aria-controls="mega-projects"
-              aria-label="Toggle projects menu"
-            >
-              Projects
-              <span class="chev" aria-hidden="true"></span>
-            </button>
-            <div class="mega-panel" id="mega-projects" role="region" aria-label="Projects menu" hidden>
-              <div class="mega-grid">
-                <a class="mega-item" href="#projects" data-mega-filter="all">
-                  <span class="mega-icon" aria-hidden="true"></span>
-                  <span class="mega-body">
-                    <span class="mega-title">All</span>
-                    <span class="mega-desc">
-                      Selected professional and academic projects. Use filters to focus on your role needs.
-                    </span>
-                  </span>
-                </a>
-                <a class="mega-item" href="#projects" data-mega-filter="robotics">
-                  <span class="mega-icon" aria-hidden="true"></span>
-                  <span class="mega-body">
-                    <span class="mega-title">Robotics</span>
-                    <span class="mega-desc">ASRS Robot Mechatronics + Field RCA</span>
-                  </span>
-                </a>
-                <a class="mega-item" href="#projects" data-mega-filter="ev-automotive">
-                  <span class="mega-icon" aria-hidden="true"></span>
-                  <span class="mega-body">
-                    <span class="mega-title">EV / Automotive</span>
-                    <span class="mega-desc">Cooling Control Unit ECU Ownership (Spec - SOP)</span>
-                  </span>
-                </a>
-                <a class="mega-item" href="#projects" data-mega-filter="embedded">
-                  <span class="mega-icon" aria-hidden="true"></span>
-                  <span class="mega-body">
-                    <span class="mega-title">Embedded / Controls</span>
-                    <span class="mega-desc">Automatic Launch Control System</span>
-                  </span>
-                </a>
-                <a class="mega-item" href="#projects" data-mega-filter="data">
-                  <span class="mega-icon" aria-hidden="true"></span>
-                  <span class="mega-body">
-                    <span class="mega-title">Data / Tooling</span>
-                    <span class="mega-desc">e-Citaro Field Data Analytics + CAN Signal Visualization</span>
-                  </span>
-                </a>
-              </div>
+            <div class="mast-links">
+              <a class="mast-link" href="#projects">
+                <span class="mast-link-title">My Projects</span>
+                <span class="mast-link-desc">
+                  Selected professional and academic projects. Use filters to focus on your role needs.
+                </span>
+              </a>
+              <a class="mast-link" href="#about">
+                <span class="mast-link-title">About Me</span>
+                <span class="mast-link-desc">
+                  I work at the intersection of hardware, controls, and software, with a practical focus.
+                </span>
+              </a>
+              <a class="mast-link" href="#contact">
+                <span class="mast-link-title">Contact me</span>
+                <span class="mast-link-desc">mukeshatnitr@gmail.com</span>
+              </a>
             </div>
-          </div>
 
-          <a class="nav-link" href="#skills">Skills</a>
-          <a class="nav-link" href="#education">Education</a>
-          <a class="nav-link" href="#resume">Resume</a>
-          <a class="nav-link" href="#contact">Contact</a>
+            <a class="mast-cta" href="resume.pdf" download>Download Cv</a>
+          </nav>
+        </header>
 
-          <a class="nav-cta" href="resume.pdf" download>Download Resume</a>
-        </div>
-      </nav>
-    </header>
-
-    <main id="main">
+        <main id="main">
       <section class="section hero" id="home" aria-label="Home">
         <div class="container hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow">Robotics engineer | EV systems | embedded + validation</p>
-            <h1 class="hero-title">Mukesh Sethy</h1>
-            <p class="hero-subtitle">
-              Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers
-            </p>
+            <p class="eyebrow">Robotics Engineer</p>
+
+            <h1 class="hero-title">
+              <span class="hero-greet">Hello!</span>
+              <span class="hero-name">I&rsquo;m Mukesh Sethy</span>
+            </h1>
+
+            <div class="hero-role">
+              <span class="hero-rule" aria-hidden="true"></span>
+              <p class="hero-subtitle">
+                Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers
+              </p>
+              <span class="hero-spark" aria-hidden="true"></span>
+            </div>
+
             <p class="hero-lead">
               Accomplished mechatronics engineer with 7+ years of specialized experience in
               robotics, electric vehicle technologies, embedded systems, and data-driven system
               validation.
             </p>
 
-            <div class="cta-row">
-              <a class="button primary" href="#projects">View Projects</a>
-              <a class="button" href="resume.pdf" download>Download Resume</a>
-              <a class="button ghost" href="#contact">Contact</a>
-            </div>
+            <ul class="hero-checklist">
+              <li>ECU lifecycle: spec to SOP</li>
+              <li>Thermal systems + EV validation benches</li>
+              <li>Field data analytics + signal visualization</li>
+              <li>Robotics mechatronics + site issue RCA</li>
+            </ul>
 
-            <div class="hero-badges" aria-label="Highlights">
-              <span class="badge">ASRS Robotics</span>
-              <span class="badge">ECU Ownership</span>
-              <span class="badge">CAN Tooling</span>
-              <span class="badge">MIL / SIL / HIL</span>
-              <span class="badge">RCA</span>
+            <div class="hero-actions">
+              <a class="btn btn-black" href="#contact">Let&rsquo;s Talk</a>
+              <a class="text-link" href="resume.pdf" download>Download Cv</a>
             </div>
           </div>
 
-          <div class="hero-panel" aria-label="Quick highlights">
-            <div class="hero-visual" aria-hidden="true">
-              <svg class="hero-illus" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stop-color="#0077c8" stop-opacity="0.22" />
-                    <stop offset="0.5" stop-color="#00a7c4" stop-opacity="0.18" />
-                    <stop offset="1" stop-color="#16b8a6" stop-opacity="0.16" />
-                  </linearGradient>
-                  <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#0b2b52" stop-opacity="0.06" />
-                    <stop offset="1" stop-color="#0b2b52" stop-opacity="0" />
-                  </linearGradient>
-                </defs>
-
-                <!-- Frame -->
-                <rect x="22" y="18" width="516" height="384" rx="28" fill="url(#g1)" stroke="rgba(15, 23, 42, 0.08)" />
-                <rect x="40" y="36" width="480" height="348" rx="24" fill="rgba(255,255,255,0.88)" />
-
-                <!-- Warehouse floor grid -->
-                <g opacity="0.55" stroke="rgba(15, 23, 42, 0.08)" stroke-width="1">
-                  <path d="M70 310 H490" />
-                  <path d="M70 336 H490" />
-                  <path d="M70 362 H490" />
-                  <path d="M98 288 V392" />
-                  <path d="M132 288 V392" />
-                  <path d="M166 288 V392" />
-                  <path d="M200 288 V392" />
-                  <path d="M234 288 V392" />
-                  <path d="M268 288 V392" />
-                  <path d="M302 288 V392" />
-                  <path d="M336 288 V392" />
-                  <path d="M370 288 V392" />
-                  <path d="M404 288 V392" />
-                  <path d="M438 288 V392" />
-                  <path d="M472 288 V392" />
-                </g>
-
-                <!-- Route lines -->
-                <path
-                  d="M112 340 C172 300, 232 360, 292 320 S412 288, 458 330"
-                  fill="none"
-                  stroke="#0077c8"
-                  stroke-opacity="0.55"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M118 312 C196 286, 256 320, 316 296 S418 300, 482 278"
-                  fill="none"
-                  stroke="#00a7c4"
-                  stroke-opacity="0.5"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                />
-
-                <!-- Nodes -->
-                <g class="node">
-                  <circle cx="112" cy="340" r="6" fill="#0077c8" />
-                  <circle cx="292" cy="320" r="6" fill="#0077c8" />
-                  <circle cx="458" cy="330" r="6" fill="#0077c8" />
-                </g>
-                <g class="node node--alt">
-                  <circle cx="118" cy="312" r="6" fill="#00a7c4" />
-                  <circle cx="316" cy="296" r="6" fill="#00a7c4" />
-                  <circle cx="482" cy="278" r="6" fill="#00a7c4" />
-                </g>
-
-                <!-- AMR-like blocks -->
-                <g fill="#ffffff" stroke="rgba(15, 23, 42, 0.12)" stroke-width="1.2">
-                  <rect x="146" y="318" width="34" height="22" rx="8" />
-                  <rect x="250" y="334" width="34" height="22" rx="8" />
-                  <rect x="382" y="308" width="34" height="22" rx="8" />
-                </g>
-
-                <!-- Floating UI cards -->
-                <g>
-                  <rect x="78" y="78" width="170" height="72" rx="16" fill="#ffffff" stroke="rgba(15, 23, 42, 0.08)" />
-                  <rect x="94" y="100" width="94" height="8" rx="999" fill="rgba(0, 119, 200, 0.25)" />
-                  <rect x="94" y="118" width="126" height="8" rx="999" fill="rgba(15, 23, 42, 0.12)" />
-
-                  <rect x="314" y="70" width="188" height="86" rx="18" fill="#ffffff" stroke="rgba(15, 23, 42, 0.08)" />
-                  <rect x="332" y="96" width="132" height="8" rx="999" fill="rgba(0, 167, 196, 0.26)" />
-                  <rect x="332" y="114" width="150" height="8" rx="999" fill="rgba(15, 23, 42, 0.12)" />
-                  <rect x="332" y="132" width="118" height="8" rx="999" fill="rgba(15, 23, 42, 0.12)" />
-                </g>
-
-                <!-- Subtle vignette -->
-                <rect x="40" y="36" width="480" height="348" rx="24" fill="url(#g2)" />
-              </svg>
-            </div>
-
-            <div class="hero-float-cards">
-              <div class="panel-card hero-photo-card" aria-label="Profile photo">
-                <img
-                  class="hero-photo"
-                  src="assets/profile.jpg"
-                  alt="Portrait of Mukesh Sethy"
-                  width="207"
-                  height="266"
-                  loading="eager"
-                  decoding="async"
-                />
-              </div>
-              <div class="panel-card">
-                <h2 class="panel-title">Focus areas</h2>
-                <ul class="clean-list">
-                  <li>ECU lifecycle: spec to SOP</li>
-                  <li>Thermal systems + EV validation benches</li>
-                  <li>Field data analytics + signal visualization</li>
-                  <li>Robotics mechatronics + site issue RCA</li>
-                </ul>
-              </div>
-              <div class="panel-card">
-                <h2 class="panel-title">Current</h2>
-                <p class="muted">
-                  Electrical Engineer at Rapyuta Robotics (Chennai) working on core mechatronics
-                  development for ASRS robots.
-                </p>
-                <div class="signal" aria-hidden="true">
-                  <span></span><span></span><span></span><span></span>
-                </div>
-              </div>
+          <div class="hero-panel" aria-label="Portrait">
+            <div class="portrait">
+              <img
+                class="portrait-img"
+                src="assets/profile.jpg"
+                alt="Portrait of Mukesh Sethy"
+                width="720"
+                height="900"
+                loading="eager"
+                decoding="async"
+              />
+              <div class="hello-disk" aria-hidden="true">Hello</div>
+              <div class="doodle doodle-lines" aria-hidden="true"></div>
+              <div class="doodle doodle-squiggle" aria-hidden="true"></div>
             </div>
           </div>
         </div>
-        <div class="hero-backdrop" aria-hidden="true"></div>
+
+        <div class="hero-strip" aria-label="Highlights">
+          <div class="container hero-strip-row">
+            <span class="strip-item">ASRS Robotics</span>
+            <span class="strip-sep" aria-hidden="true"></span>
+            <span class="strip-item">ECU Ownership</span>
+            <span class="strip-sep" aria-hidden="true"></span>
+            <span class="strip-item">CAN Tooling</span>
+            <span class="strip-sep" aria-hidden="true"></span>
+            <span class="strip-item">MIL / SIL / HIL</span>
+            <span class="strip-sep" aria-hidden="true"></span>
+            <span class="strip-item">RCA</span>
+          </div>
+        </div>
+
+        <div class="hero-meta" aria-label="Links">
+          <div class="container hero-meta-row">
+            <div class="hero-social">
+              <a class="text-link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">GitHub</a>
+              <a
+                class="text-link"
+                href="https://www.linkedin.com/in/mukesh-sethy-410699104"
+                target="_blank"
+                rel="noreferrer"
+              >
+                LinkedIn
+              </a>
+            </div>
+            <a class="text-link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
+          </div>
+        </div>
       </section>
 
-      <section class="section" id="about">
+      <section class="section offering" id="skills" aria-label="What I'm offering">
         <div class="container">
-          <h2 class="section-title">About</h2>
-          <div class="two-col">
+          <div class="offering-head">
             <div>
-              <p>
-                I work at the intersection of hardware, controls, and software, with a practical
-                focus on making complex systems reliable in the real world. My background spans
-                robotics development, automotive/EV systems, embedded controllers, and validation.
-              </p>
-              <p>
-                I have owned ECUs end-to-end, designed I/O and wiring concepts for CAN + sensor/
-                actuator communication, supported cybersecurity and functional safety assessments,
-                and driven root-cause analysis for component and production issues.
-              </p>
-              <p>
-                I also build data-driven workflows to monitor systems in the field (signal
-                processing, dashboards/visualization, and GUI tooling) and validate solutions on
-                benches and in test environments.
-              </p>
+              <p class="eyebrow">My Services ?</p>
+              <h2 class="section-title">What I&rsquo;m Offering</h2>
             </div>
-            <div class="info-card">
-              <h3 class="card-title">At a glance</h3>
-              <ul class="meta-grid">
-                <li><span>Experience</span><strong>7+ years</strong></li>
-                <li><span>Location</span><strong>Chennai, India</strong></li>
-                <li><span>Robotics</span><strong>ASRS systems</strong></li>
-                <li><span>EV</span><strong>Thermal control</strong></li>
-              </ul>
+            <div class="offering-head-right">
+              <p class="muted">
+                A recruiter-friendly view of tools and domains I work with hands-on.
+              </p>
+              <a class="btn btn-black" href="#projects">All Service</a>
+            </div>
+          </div>
+
+          <div class="offering-layout">
+            <div class="offering-rail" aria-hidden="true">
+              <span class="offering-rail-label">Scroll down</span>
+              <span class="offering-rail-line"></span>
+              <span class="offering-rail-btn"></span>
+            </div>
+
+            <div class="cards-grid offering-grid">
+              <article class="skill-card offering-card">
+                <h3 class="card-title">EV Systems / ECU</h3>
+                <ul class="clean-list muted">
+                  <li>ECU ownership (spec to SOP)</li>
+                  <li>Cooling + HVAC monitoring</li>
+                  <li>CAN, sensors, actuators</li>
+                  <li>Thermal validation benches</li>
+                </ul>
+                <a class="offering-link" href="#projects">Read more</a>
+              </article>
+
+              <article class="skill-card offering-card">
+                <h3 class="card-title">Robotics / Mechatronics</h3>
+                <ul class="clean-list muted">
+                  <li>ASRS robotics</li>
+                  <li>System integration</li>
+                  <li>Diagnostics and RCA</li>
+                  <li>PLM + BOM processes</li>
+                </ul>
+                <a class="offering-link" href="#projects">Read more</a>
+              </article>
+
+              <article class="skill-card offering-card">
+                <h3 class="card-title">Embedded / Controls</h3>
+                <ul class="clean-list muted">
+                  <li>Control system thinking</li>
+                  <li>Arduino</li>
+                  <li>Microcontroller + ECU concepts</li>
+                  <li>MATLAB / Simulink</li>
+                </ul>
+                <a class="offering-link" href="#projects">Read more</a>
+              </article>
             </div>
           </div>
         </div>
@@ -522,67 +420,84 @@
         </div>
       </section>
 
-      <section class="section" id="skills">
+      <section class="section snapshot" id="about">
         <div class="container">
-          <div class="section-head">
-            <h2 class="section-title">Skills</h2>
-            <p class="muted">A recruiter-friendly view of tools and domains I work with hands-on.</p>
+          <p class="eyebrow">Profile Snapshot</p>
+          <div class="snapshot-grid">
+            <div class="snapshot-copy">
+              <p class="snapshot-quote">
+                &ldquo;Accomplished mechatronics engineer with 7+ years of specialized experience in robotics,
+                electric vehicle technologies, embedded systems, and data-driven system validation.&rdquo;
+              </p>
+              <p class="snapshot-name">Mukesh Sethy</p>
+              <p class="muted snapshot-role">
+                Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers
+              </p>
+
+              <div class="snapshot-stats" aria-label="Highlights">
+                <div class="stat">
+                  <p class="stat-value">7+ years</p>
+                  <p class="stat-label">Experience</p>
+                </div>
+                <div class="stat">
+                  <p class="stat-value">Chennai, India</p>
+                  <p class="stat-label">Location</p>
+                </div>
+                <div class="stat">
+                  <p class="stat-value">ASRS systems</p>
+                  <p class="stat-label">Robotics</p>
+                </div>
+                <div class="stat">
+                  <p class="stat-value">Thermal control</p>
+                  <p class="stat-label">EV</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="snapshot-art" aria-label="Portrait cutout">
+              <div class="burst" aria-hidden="true"></div>
+              <img
+                class="snapshot-img"
+                src="assets/profile.jpg"
+                alt="Portrait of Mukesh Sethy"
+                width="720"
+                height="900"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
           </div>
 
-          <div class="cards-grid">
-            <article class="skill-card">
-              <h3 class="card-title">EV Systems / ECU</h3>
-              <ul class="clean-list muted">
-                <li>ECU ownership (spec to SOP)</li>
-                <li>Cooling + HVAC monitoring</li>
-                <li>CAN, sensors, actuators</li>
-                <li>Thermal validation benches</li>
-              </ul>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">Robotics / Mechatronics</h3>
-              <ul class="clean-list muted">
-                <li>ASRS robotics</li>
-                <li>System integration</li>
-                <li>Diagnostics and RCA</li>
-                <li>PLM + BOM processes</li>
-              </ul>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">Embedded / Controls</h3>
-              <ul class="clean-list muted">
-                <li>Control system thinking</li>
-                <li>Arduino</li>
-                <li>Microcontroller + ECU concepts</li>
-                <li>MATLAB / Simulink</li>
-              </ul>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">Data / Tooling</h3>
-              <ul class="clean-list muted">
-                <li>Python</li>
-                <li>Signal analysis + visualization</li>
-                <li>GUI tooling</li>
-                <li>Field data workflows</li>
-              </ul>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">Tools</h3>
-              <ul class="clean-list muted">
-                <li>Vector CANoe</li>
-                <li>Vector CANape</li>
-                <li>Solidworks</li>
-                <li>Eagle CAD</li>
-              </ul>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">Safety / Cybersecurity</h3>
-              <ul class="clean-list muted">
-                <li>HARA (Functional safety)</li>
-                <li>TARA (Cybersecurity)</li>
-                <li>Requirements and validation mindset</li>
-              </ul>
-            </article>
+          <div class="about-body">
+            <h2 class="section-title">About</h2>
+            <div class="two-col">
+              <div>
+                <p>
+                  I work at the intersection of hardware, controls, and software, with a practical
+                  focus on making complex systems reliable in the real world. My background spans
+                  robotics development, automotive/EV systems, embedded controllers, and validation.
+                </p>
+                <p>
+                  I have owned ECUs end-to-end, designed I/O and wiring concepts for CAN + sensor/
+                  actuator communication, supported cybersecurity and functional safety assessments,
+                  and driven root-cause analysis for component and production issues.
+                </p>
+                <p>
+                  I also build data-driven workflows to monitor systems in the field (signal
+                  processing, dashboards/visualization, and GUI tooling) and validate solutions on
+                  benches and in test environments.
+                </p>
+              </div>
+              <div class="info-card">
+                <h3 class="card-title">At a glance</h3>
+                <ul class="meta-grid">
+                  <li><span>Experience</span><strong>7+ years</strong></li>
+                  <li><span>Location</span><strong>Chennai, India</strong></li>
+                  <li><span>Robotics</span><strong>ASRS systems</strong></li>
+                  <li><span>EV</span><strong>Thermal control</strong></li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -629,55 +544,75 @@
         </div>
       </section>
 
-      <section class="section" id="contact">
+      <section class="section contact" id="contact">
         <div class="container">
-          <h2 class="section-title">Contact</h2>
+          <h2 class="contact-title">
+            <span class="contact-title-muted">Say Hi!</span>
+            <span class="contact-title-ink">and tell me about your idea</span>
+          </h2>
+          <p class="muted contact-subtitle">
+            Have a nice works? reach out and let&rsquo;s chat.
+          </p>
 
-          <div class="contact-grid">
-            <div class="contact-card">
-              <h3 class="card-title">Email</h3>
-              <p class="muted">
-                <a class="link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
-              </p>
-              <button class="mini-button" type="button" data-copy="mukeshatnitr@gmail.com" aria-label="Copy email">
-                Copy
+          <form class="contact-form" id="contact-form" autocomplete="on" novalidate>
+            <div class="form-grid form-grid-2">
+              <label class="field">
+                <span class="field-label">Name*</span>
+                <input
+                  class="field-input"
+                  type="text"
+                  name="name"
+                  placeholder="Hello.."
+                  autocomplete="name"
+                />
+              </label>
+              <label class="field">
+                <span class="field-label">Email*</span>
+                <input
+                  class="field-input"
+                  type="email"
+                  name="email"
+                  placeholder="Where can I reply"
+                  autocomplete="email"
+                />
+              </label>
+            </div>
+
+            <label class="field">
+              <span class="field-label">Company name</span>
+              <input
+                class="field-input"
+                type="text"
+                name="company"
+                placeholder="Your company or website?"
+                autocomplete="organization"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field-label">What&rsquo;s in your mind?*</span>
+              <textarea class="field-input field-textarea" name="message" rows="3"></textarea>
+            </label>
+
+            <div class="topics" aria-label="Topics">
+              <button class="topic-pill" type="button" data-topic="Robotics">Robotics</button>
+              <button class="topic-pill" type="button" data-topic="EV Systems">EV Systems</button>
+              <button class="topic-pill" type="button" data-topic="Embedded">Embedded</button>
+              <button class="topic-pill" type="button" data-topic="Controls">Controls</button>
+              <button class="topic-pill" type="button" data-topic="Data Tooling">Data / Tooling</button>
+              <button class="topic-pill" type="button" data-topic="Validation">Validation</button>
+            </div>
+
+            <div class="contact-actions">
+              <button class="send-button" type="submit">
+                <span>Send Me</span>
+                <span class="send-arrow" aria-hidden="true"></span>
               </button>
-            </div>
-            <div class="contact-card">
-              <h3 class="card-title">LinkedIn</h3>
-              <p class="muted">
-                <a
-                  class="link"
-                  href="https://www.linkedin.com/in/mukesh-sethy-410699104"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  linkedin.com/in/mukesh-sethy-410699104
-                </a>
+              <p class="tiny muted">
+                Prefer email? <a class="link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
               </p>
             </div>
-
-            <div class="contact-card">
-              <h3 class="card-title">GitHub</h3>
-              <p class="muted">
-                <a class="link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">
-                  github.com/MukeshSethy
-                </a>
-              </p>
-            </div>
-          </div>
-
-          <div class="contact-grid contact-grid-2">
-            <div class="contact-card">
-              <h3 class="card-title">Location</h3>
-              <p class="muted">Chennai, India</p>
-            </div>
-            <div class="contact-card">
-              <h3 class="card-title">Languages</h3>
-              <p class="muted">English, Hindi, Odia (Fluent) | German (Basics)</p>
-            </div>
-          </div>
-
+          </form>
         </div>
       </section>
     </main>
@@ -735,6 +670,9 @@
         </div>
       </div>
     </footer>
+
+      </div>
+    </div>
 
     <button class="to-top" id="to-top" type="button" aria-label="Back to top">
       <span aria-hidden="true">Top</span>
