@@ -4,6 +4,25 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+  // Folder-style URLs are clean on GitHub Pages, but `file://` does not auto-open folder `index.html`.
+  // Rewrite internal links ending with `/` to `.../index.html` when opened locally.
+  (function fixFileProtocolFolderLinks() {
+    try {
+      if (location.protocol !== "file:") return;
+      $$("a[href]").forEach((a) => {
+        const href = String(a.getAttribute("href") || "").trim();
+        if (!href) return;
+        if (href.startsWith("#")) return;
+        if (/^(https?:)?\/\//i.test(href)) return;
+        if (/^(mailto:|tel:|javascript:)/i.test(href)) return;
+        if (a.hasAttribute("download")) return;
+        if (href.endsWith("/")) a.setAttribute("href", `${href}index.html`);
+      });
+    } catch (_) {
+      // Ignore.
+    }
+  })();
+
   const prefersReducedMotion =
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -39,6 +58,77 @@
     // Ignore.
   }
 
+  // Read key CSS vars once so canvas FX can match the current theme.
+  const theme = (() => {
+    const root = document.documentElement;
+
+    function readVar(name, fallback) {
+      try {
+        const v = getComputedStyle(root).getPropertyValue(name);
+        const s = String(v || "").trim();
+        return s || fallback;
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function clampByte(n) {
+      return Math.max(0, Math.min(255, Math.round(n)));
+    }
+
+    // Supports hex (#rgb/#rrggbb) and rgb()/rgba() strings.
+    function parseRgb(color) {
+      if (!color) return null;
+      const c = String(color).trim();
+      if (!c) return null;
+
+      if (c[0] === "#") {
+        let hex = c.slice(1).trim();
+        if (hex.length === 3) hex = hex.split("").map((ch) => ch + ch).join("");
+        if (hex.length !== 6) return null;
+        const num = Number.parseInt(hex, 16);
+        if (!Number.isFinite(num)) return null;
+        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+      }
+
+      const m = c.match(/rgba?\\(([^)]+)\\)/i);
+      if (m && m[1]) {
+        const nums = String(m[1]).match(/[0-9.]+/g);
+        if (nums && nums.length >= 3) {
+          const r = Number(nums[0]);
+          const g = Number(nums[1]);
+          const b = Number(nums[2]);
+          if ([r, g, b].every((x) => Number.isFinite(x))) {
+            return { r: clampByte(r), g: clampByte(g), b: clampByte(b) };
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function rgba(rgb, a) {
+      const r = rgb && typeof rgb.r === "number" ? rgb.r : 0;
+      const g = rgb && typeof rgb.g === "number" ? rgb.g : 0;
+      const b = rgb && typeof rgb.b === "number" ? rgb.b : 0;
+      return `rgba(${r},${g},${b},${a})`;
+    }
+
+    const brand = readVar("--brand", "#3ecf8e");
+    const ink = readVar("--ink", "#171717");
+    const canvas = readVar("--canvas", "#ffffff");
+
+    return {
+      brand,
+      ink,
+      canvas,
+      brandRgb: parseRgb(brand) || { r: 62, g: 207, b: 142 },
+      inkRgb: parseRgb(ink) || { r: 23, g: 23, b: 23 },
+      canvasRgb: parseRgb(canvas) || { r: 255, g: 255, b: 255 },
+      rgba,
+    };
+  })();
+
   function runWhenIdle(cb, timeout = 650) {
     try {
       if ("requestIdleCallback" in window) {
@@ -61,6 +151,60 @@
   const megaToggle = megaWrap ? $(".nav-mega-toggle", megaWrap) : null;
   const megaPanel = megaWrap ? $(".mega-panel", megaWrap) : null;
   let megaHideTimer = 0;
+
+  let pendingNavTimer = 0;
+  function cancelPendingNavigation() {
+    if (!pendingNavTimer) return;
+    window.clearTimeout(pendingNavTimer);
+    pendingNavTimer = 0;
+    document.body.classList.remove("is-leaving");
+  }
+
+  // Subtle page-leave transition for internal navigations.
+  (function setupPageTransitions() {
+    const LEAVE_MS = 190;
+
+    function isModifiedEvent(e) {
+      return !!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey);
+    }
+
+    function shouldIntercept(a, href) {
+      if (!a || !href) return false;
+      if (href.startsWith("#")) return false;
+      if (a.hasAttribute("download")) return false;
+      if (a.target && a.target !== "_self") return false;
+      if (/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+      if (/^(https?:)?\/\//i.test(href)) return false;
+      return true; // relative/internal
+    }
+
+    document.addEventListener("click", (e) => {
+      if (e.defaultPrevented) return;
+      if (e.button !== 0) return;
+      if (isModifiedEvent(e)) return;
+      const t = e.target;
+      if (!t || !t.closest) return;
+      const a = t.closest("a");
+      if (!a) return;
+      const href = String(a.getAttribute("href") || "").trim();
+      if (!shouldIntercept(a, href)) return;
+
+      // Avoid double navigation.
+      if (document.body.classList.contains("is-leaving")) return;
+
+      e.preventDefault();
+      document.body.classList.add("is-leaving");
+      pendingNavTimer = window.setTimeout(() => {
+        pendingNavTimer = 0;
+        window.location.href = href;
+      }, LEAVE_MS);
+    });
+
+    // If restored from bfcache, ensure we don't get stuck in the leaving state.
+    window.addEventListener("pageshow", () => {
+      cancelPendingNavigation();
+    });
+  })();
 
   function openMega() {
     if (!megaWrap || !megaToggle || !megaPanel) return;
@@ -199,22 +343,60 @@
     applyFilter(v);
   }
 
-  filterButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const value = btn.getAttribute("data-filter") || "all";
-      setFilterByValue(value);
+  function getInitialProjectFilter() {
+    // 1) Cross-page handoff via sessionStorage.
+    try {
+      const stored = sessionStorage.getItem("projectFilter");
+      if (stored) {
+        sessionStorage.removeItem("projectFilter");
+        return stored;
+      }
+    } catch (_) {
+      // Ignore.
+    }
+
+    // 2) Optional query param: `?filter=robotics`
+    try {
+      const sp = new URLSearchParams(location.search || "");
+      return sp.get("filter") || "";
+    } catch (_) {
+      return "";
+    }
+  }
+
+  if (filterButtons.length && projectCards.length) {
+    setFilterByValue(getInitialProjectFilter() || "all");
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const value = btn.getAttribute("data-filter") || "all";
+        setFilterByValue(value);
+      });
     });
-  });
+  }
 
   // Apply project filter from mega menu / footer links.
   document.addEventListener("click", (e) => {
     const t = e.target;
     if (!t || !t.closest) return;
-    const a = t.closest("[data-mega-filter]");
+    const a = t.closest("a[data-mega-filter]");
     if (!a) return;
     const value = a.getAttribute("data-mega-filter") || "all";
-    if (filterButtons.length && projectCards.length) setFilterByValue(value);
-    closeMega();
+
+    // Persist across pages.
+    try {
+      sessionStorage.setItem("projectFilter", value);
+    } catch (_) {
+      // Ignore.
+    }
+
+    // If we're already on the projects grid, filter in-place and keep the user here.
+    if (filterButtons.length && projectCards.length) {
+      e.preventDefault();
+      cancelPendingNavigation();
+      setFilterByValue(value);
+      closeMega();
+    }
   });
 
   // Footer year.
@@ -407,7 +589,7 @@
 
     // Scroll-reveal (staggered).
     const revealSelector =
-      ".hero-copy, .hero-panel, .offering-head, .offering-rail, .offering-card, .timeline-card, .filters, .project-card, .snapshot-copy, .snapshot-art, .stat, .about-body, .resume-card, .field, .topic-pill, .send-button, .section-title";
+      ".page-title, .page-lead, .hero-copy, .hero-panel, .offering-head, .offering-rail, .offering-card, .timeline-card, .filters, .project-card, .snapshot-copy, .snapshot-art, .stat, .about-body, .resume-card, .field, .topic-pill, .send-button, .cta-panel, .section-title, .section-head, .section-actions";
     const revealEls = $$(revealSelector).filter((el) => el && el.classList);
 
     if (!prefersReducedMotion) {
@@ -433,23 +615,38 @@
       revealEls.forEach((el) => io.observe(el));
     }
 
+    // Experience timeline: click-to-pin a card (subtle micro-interaction).
+    const timelineCards = $$(".timeline-card");
+    if (timelineCards.length) {
+      timelineCards.forEach((card) => {
+        if (!card || !card.classList) return;
+        if (!card.hasAttribute("tabindex")) card.setAttribute("tabindex", "0");
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-pressed", card.classList.contains("is-pinned") ? "true" : "false");
+
+        function togglePin() {
+          const pinned = card.classList.toggle("is-pinned");
+          card.setAttribute("aria-pressed", pinned ? "true" : "false");
+        }
+
+        card.addEventListener("click", (e) => {
+          const t = e.target;
+          if (t && t.closest && t.closest("a, button, input, textarea, select")) return;
+          togglePin();
+        });
+
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            togglePin();
+          }
+        });
+      });
+    }
+
     // Active nav link highlighting + smooth nav indicator.
     const navAnchors = $$(".nav-links a.nav-link");
     const projectsNav = megaToggle;
-    const sections = navAnchors
-      .map((a) => {
-        const href = a.getAttribute("href") || "";
-        if (!href.startsWith("#")) return null;
-        const id = href.slice(1);
-        const el = document.getElementById(id);
-        return el ? { id, el } : null;
-      })
-      .filter(Boolean);
-
-    if (projectsNav) {
-      const projectsSection = document.getElementById("projects");
-      if (projectsSection) sections.push({ id: "projects", el: projectsSection });
-    }
 
     const navIndicator = $("#nav-indicator");
     let activeNavEl = null;
@@ -479,30 +676,35 @@
       moveNavIndicator(hoverNavEl || activeNavEl || navAnchors[0]);
     }
 
-    function setActiveNav(id) {
+    function detectPageKey() {
+      const explicit = document.body ? document.body.getAttribute("data-page") : "";
+      if (explicit) return explicit;
+
+      const p = String(location.pathname || "").replace(/\\/g, "/");
+      if (/\/projects(\/|$)/i.test(p)) return "projects";
+      if (/\/experience(\/|$)/i.test(p)) return "experience";
+      if (/\/about(\/|$)/i.test(p)) return "about";
+      if (/\/contact(\/|$)/i.test(p)) return "contact";
+      return "home";
+    }
+
+    function setActiveNav(pageKey) {
       activeNavEl = null;
       navAnchors.forEach((a) => {
-        const isActive = a.getAttribute("href") === `#${id}`;
+        const isActive = (a.getAttribute("data-page") || "") === pageKey;
         a.classList.toggle("is-active", isActive);
-        if (isActive) activeNavEl = a;
+        if (isActive) {
+          activeNavEl = a;
+          a.setAttribute("aria-current", "page");
+        } else {
+          a.removeAttribute("aria-current");
+        }
       });
-      if (projectsNav) projectsNav.classList.toggle("is-active", id === "projects");
+      if (projectsNav) projectsNav.classList.toggle("is-active", pageKey === "projects");
       if (!hoverNavEl) syncNavIndicator();
     }
 
-    if (sections.length) {
-      const navIO = new IntersectionObserver(
-        (entries) => {
-          const visible = entries
-            .filter((e) => e.isIntersecting)
-            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-          if (visible && visible.target && visible.target.id) setActiveNav(visible.target.id);
-        },
-        { threshold: [0.2, 0.35, 0.5], rootMargin: "-20% 0px -60% 0px" }
-      );
-
-      sections.forEach(({ el }) => navIO.observe(el));
-    }
+    if (navAnchors.length) setActiveNav(detectPageKey());
 
     if (navIndicator && navAnchors.length && navLinks) {
       navAnchors.forEach((a) => {
@@ -530,6 +732,129 @@
       });
 
       window.requestAnimationFrame(() => syncNavIndicator());
+    }
+
+    // Projects page: open a lightweight details modal using card content.
+    const modal = $("#project-modal");
+    const modalTitle = $("#project-modal-title");
+    const modalPill = $("#project-modal-pill");
+    const modalDesc = $("#project-modal-desc");
+    const modalChips = $("#project-modal-chips");
+    const modalClose = modal ? $("[data-modal-close]", modal) : null;
+    let lastFocused = null;
+
+    function getFocusable(root) {
+      const sel =
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+      return $$(sel, root).filter((el) => el && el.offsetParent !== null);
+    }
+
+    function openModalFromCard(card) {
+      if (!modal || !card || !modalTitle || !modalDesc) return;
+      lastFocused = document.activeElement;
+
+      const titleEl = $(".card-title", card);
+      const pillEl = $(".pill", card);
+      const descEl = $(".muted", card);
+      const chips = $$(".chips li", card).map((li) => String(li.textContent || "").trim()).filter(Boolean);
+
+      modalTitle.textContent = titleEl ? String(titleEl.textContent || "").trim() : "Project";
+      modalDesc.textContent = descEl ? String(descEl.textContent || "").trim() : "";
+      if (modalPill) modalPill.textContent = pillEl ? String(pillEl.textContent || "").trim() : "";
+
+      if (modalChips) {
+        modalChips.innerHTML = "";
+        chips.forEach((c) => {
+          const li = document.createElement("li");
+          li.textContent = c;
+          modalChips.appendChild(li);
+        });
+      }
+
+      modal.hidden = false;
+      document.body.classList.add("modal-open");
+      window.requestAnimationFrame(() => {
+        modal.classList.add("is-open");
+        const focusables = getFocusable(modal);
+        (focusables[0] || modal).focus({ preventScroll: true });
+      });
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.remove("is-open");
+      document.body.classList.remove("modal-open");
+      window.setTimeout(() => {
+        modal.hidden = true;
+        if (lastFocused && lastFocused.focus) lastFocused.focus({ preventScroll: true });
+      }, 240);
+    }
+
+    if (modal) {
+      modal.setAttribute("tabindex", "-1");
+
+      // Make cards keyboard-openable when the modal feature is present.
+      $$(".project-card").forEach((card) => {
+        if (!card || !card.getAttribute) return;
+        if (!card.hasAttribute("tabindex")) card.setAttribute("tabindex", "0");
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-haspopup", "dialog");
+        card.addEventListener("keydown", (e) => {
+          if (modal.hidden) {
+            // still allow open
+          }
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openModalFromCard(card);
+          }
+        });
+      });
+
+      document.addEventListener("click", (e) => {
+        const t = e.target;
+        if (!t || !t.closest) return;
+        const closeBtn = t.closest("[data-modal-close]");
+        if (closeBtn && modal.contains(closeBtn)) {
+          e.preventDefault();
+          closeModal();
+          return;
+        }
+        const card = t.closest(".project-card");
+        if (card && card.getAttribute("data-category")) {
+          // Avoid opening the modal while filtering with keyboard shortcuts etc.
+          openModalFromCard(card);
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (modal.hidden) return;
+        if (e.key === "Escape") {
+          e.preventDefault();
+          closeModal();
+          return;
+        }
+        if (e.key !== "Tab") return;
+        const focusables = getFocusable(modal);
+        if (!focusables.length) {
+          e.preventDefault();
+          modal.focus({ preventScroll: true });
+          return;
+        }
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      // Click backdrop closes.
+      if (modalClose) {
+        // no-op: presence is enough, handled in the click delegate above
+      }
     }
   }
 
@@ -928,6 +1253,11 @@
     const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
+    const brand = theme.brand;
+    const ink = theme.ink;
+    const hazeStop = theme.rgba(theme.brandRgb, 0.055);
+    const sweepStop = theme.rgba(theme.brandRgb, 0.06);
+
     let w = 1;
     let h = 1;
     let dpr = 1;
@@ -999,7 +1329,7 @@
           h * 0.5,
           Math.max(w, h) * 0.7
         );
-        haze.addColorStop(0, "rgba(225,26,39,0.055)");
+        haze.addColorStop(0, hazeStop);
         haze.addColorStop(1, "rgba(0,0,0,0)");
       }
       ctx.fillStyle = haze;
@@ -1039,7 +1369,7 @@
 
           const base = (1 - d2 / link2) * 0.12;
 
-          // Mouse proximity boosts brightness + shifts towards brand red.
+          // Mouse proximity boosts brightness + shifts towards brand accent.
           let boost = 0;
           if (pointer.has) {
             const adx = a.x - pointer.x;
@@ -1050,7 +1380,7 @@
 
           const alpha = Math.min(0.22, base + boost);
           ctx.globalAlpha = alpha;
-          ctx.strokeStyle = boost > 0.02 ? "#e11a27" : "#000000";
+          ctx.strokeStyle = boost > 0.02 ? brand : ink;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
@@ -1073,13 +1403,13 @@
         }
 
         ctx.globalAlpha = Math.min(0.26, glow);
-        ctx.fillStyle = "#e11a27";
+        ctx.fillStyle = brand;
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1.25, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.globalAlpha = Math.min(0.14, glow * 0.75);
-        ctx.fillStyle = "#000000";
+        ctx.fillStyle = ink;
         ctx.beginPath();
         ctx.arc(p.x + 0.2, p.y + 0.2, 0.95, 0, Math.PI * 2);
         ctx.fill();
@@ -1091,7 +1421,7 @@
       ctx.globalCompositeOperation = "lighter";
       const sweep = ctx.createLinearGradient(sx, 0, sx + 220, 0);
       sweep.addColorStop(0, "rgba(0,0,0,0)");
-      sweep.addColorStop(0.5, "rgba(225,26,39,0.06)");
+      sweep.addColorStop(0.5, sweepStop);
       sweep.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = sweep;
       ctx.fillRect(0, 0, w, h);
@@ -1126,6 +1456,10 @@
     const hero = canvas.closest(".hero") || canvas.parentElement;
     const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!hero || !ctx) return;
+
+    const brand = theme.brand;
+    const ink = theme.ink;
+    const fadeFill = theme.rgba(theme.canvasRgb, 0.085);
 
     let w = 1;
     let h = 1;
@@ -1239,11 +1573,11 @@
 
       // Fade previous frame (trail effect).
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgba(0,0,0,0.065)";
+      ctx.fillStyle = fadeFill;
       ctx.fillRect(0, 0, w, h);
 
-      // Draw new strokes additively.
-      ctx.globalCompositeOperation = "lighter";
+      // Draw new strokes (keep it subtle on the light theme).
+      ctx.globalCompositeOperation = "source-over";
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
@@ -1254,7 +1588,7 @@
       }
 
       // Avoid per-particle string allocations; use globalAlpha + fixed colors.
-      ctx.strokeStyle = "#e11a27";
+      ctx.strokeStyle = brand;
       ctx.lineWidth = 1.2;
 
       for (let i = 0; i < particles.length; i++) {
@@ -1289,7 +1623,7 @@
         if (p.y < -20) p.y = h + 20;
         if (p.y > h + 20) p.y = -20;
 
-        // Two-tone strokes: red + cool white.
+        // Two-tone strokes: brand + ink.
         const a = 0.10 + Math.min(0.22, Math.abs(p.vx) + Math.abs(p.vy)) * 0.08;
 
         ctx.globalAlpha = a;
@@ -1300,13 +1634,13 @@
 
         if (drawWhite) {
           ctx.globalAlpha = a * 0.55;
-          ctx.strokeStyle = "#ffffff";
+          ctx.strokeStyle = ink;
           ctx.lineWidth = 0.9;
           ctx.beginPath();
           ctx.moveTo(ox + 0.4, oy + 0.2);
           ctx.lineTo(p.x + 0.4, p.y + 0.2);
           ctx.stroke();
-          ctx.strokeStyle = "#e11a27";
+          ctx.strokeStyle = brand;
         }
 
         // Glowing nodes (sampled for performance).
@@ -1314,14 +1648,14 @@
           const spd = Math.abs(p.vx) + Math.abs(p.vy);
           const g = Math.min(0.42, 0.12 + spd * 0.08);
           ctx.globalAlpha = g;
-          ctx.fillStyle = "#e11a27";
+          ctx.fillStyle = brand;
           ctx.beginPath();
           ctx.arc(p.x, p.y, nodeSize + p.s * 0.28, 0, Math.PI * 2);
           ctx.fill();
 
           if (drawWhite) {
             ctx.globalAlpha = g * 0.5;
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = ink;
             ctx.beginPath();
             ctx.arc(p.x + 0.4, p.y + 0.2, nodeSize * 0.78, 0, Math.PI * 2);
             ctx.fill();

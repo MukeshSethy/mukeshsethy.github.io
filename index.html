@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mukesh Sethy | Robotics & EV Systems Architect</title>
+    <title>Mukesh Sethy | Robotics &amp; EV Systems Architect</title>
     <meta
       name="description"
-      content="Portfolio of Mukesh Sethy — robotics and EV systems architect building intelligent mechatronics, embedded control, and data-driven validation." 
+      content="Portfolio of Mukesh Sethy - robotics and EV systems architect building intelligent mechatronics, embedded control, and data-driven validation."
     />
 
     <meta property="og:title" content="Mukesh Sethy | Futuristic Systems Portfolio" />
@@ -18,12 +18,13 @@
 
     <!-- Add a favicon later: <link rel="icon" href="favicon.ico" /> -->
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
+  <body data-page="home">
+    <div id="top" aria-hidden="true"></div>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="scroll-progress" aria-hidden="true">
       <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
@@ -41,18 +42,17 @@
       <div class="sheet">
         <header class="site-header">
           <div class="container header-row">
-            <a class="brand" href="#home" aria-label="Home">
+            <a class="brand" href="./" aria-label="Home">
               <span class="brand-mark" aria-hidden="true"></span>
               <span class="brand-name">Mukesh Sethy</span>
             </a>
 
             <nav class="nav-links" id="nav-links" aria-label="Primary">
-              <a class="nav-link" href="#home">Home</a>
-              <a class="nav-link" href="#experience">Experience</a>
-              <a class="nav-link" href="#projects">Projects</a>
-              <a class="nav-link" href="#skills">Offerings</a>
-              <a class="nav-link" href="#about">About</a>
-              <a class="nav-link" href="#contact">Contact</a>
+              <a class="nav-link" href="./" data-page="home">Home</a>
+              <a class="nav-link" href="experience/" data-page="experience">Experience</a>
+              <a class="nav-link" href="projects/" data-page="projects">Projects</a>
+              <a class="nav-link" href="about/" data-page="about">About</a>
+              <a class="nav-link" href="contact/" data-page="contact">Contact</a>
               <a class="header-cta" href="resume.pdf" download>Download CV</a>
               <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
             </nav>
@@ -70,644 +70,308 @@
         </header>
 
         <main id="main">
-      <section class="section hero" id="home" aria-label="Home">
-        <canvas class="hero-fx" id="hero-fx" aria-hidden="true"></canvas>
-        <div class="hero-stripe" aria-hidden="true"></div>
-        <div class="container hero-grid">
-          <div class="hero-copy">
-            <p class="eyebrow">Systems Architect</p>
+          <section class="section hero" id="home" aria-label="Home">
+            <canvas class="hero-fx" id="hero-fx" aria-hidden="true"></canvas>
+            <div class="hero-stripe" aria-hidden="true"></div>
+            <div class="container hero-grid">
+              <div class="hero-copy">
+                <p class="eyebrow">Systems Architect</p>
 
-            <h1 class="hero-title">
-              <span class="hero-greet">Hello!</span>
-              <span class="hero-name">I&rsquo;m Mukesh Sethy</span>
-            </h1>
+                <h1 class="hero-title">
+                  <span class="hero-greet">Hello!</span>
+                  <span class="hero-name">I&rsquo;m Mukesh Sethy</span>
+                </h1>
 
-            <div class="hero-role">
-              <span class="hero-rule" aria-hidden="true"></span>
-              <p class="hero-subtitle">
-                Robotics | EV Systems | Embedded Intelligence
-              </p>
-              <span class="hero-spark" aria-hidden="true"></span>
+                <div class="hero-role">
+                  <span class="hero-rule" aria-hidden="true"></span>
+                  <p class="hero-subtitle">Robotics | EV Systems | Embedded Intelligence</p>
+                  <span class="hero-spark" aria-hidden="true"></span>
+                </div>
+
+                <p class="hero-lead">
+                  I build intelligent physical systems that merge robotics, electric vehicle control, and data-driven
+                  reliability for real-world industrial products.
+                </p>
+
+                <div class="hero-badges">
+                  <span class="hero-badge">Hardware + software fusion</span>
+                  <span class="hero-badge">Predictive systems</span>
+                  <span class="hero-badge">Industrial autonomy</span>
+                </div>
+
+                <ul class="hero-checklist">
+                  <li>ECU lifecycle and CAN system architecture</li>
+                  <li>Autonomous robotics mechatronics and system integration</li>
+                  <li>Thermal validation and EV performance tuning</li>
+                  <li>Field analytics, diagnostics, and root-cause intelligence</li>
+                </ul>
+
+                <div class="hero-terminal">
+                  <div class="term-row">
+                    <span>&gt;</span> Robotics | EV automation | embedded intelligence | diagnostics
+                  </div>
+                  <div class="term-row">
+                    <span>&gt;</span> Production-grade validation | field analytics | safety-first architecture
+                  </div>
+                </div>
+
+                <div class="hero-actions">
+                  <a class="btn btn-black" href="contact/">Let&rsquo;s Talk</a>
+                  <a class="text-link" href="resume.pdf" download>Download CV</a>
+                </div>
+              </div>
+
+              <div class="hero-panel" aria-label="Portrait">
+                <div class="portrait">
+                  <img
+                    class="portrait-img"
+                    src="assets/profile.jpg"
+                    alt="Portrait of Mukesh Sethy"
+                    width="720"
+                    height="900"
+                    loading="eager"
+                    decoding="async"
+                  />
+                  <div class="hello-disk" aria-hidden="true">Hello</div>
+                  <div class="doodle doodle-lines" aria-hidden="true"></div>
+                  <div class="doodle doodle-squiggle" aria-hidden="true"></div>
+                </div>
+              </div>
             </div>
 
-            <p class="hero-lead">
-              I build intelligent physical systems that merge robotics, electric vehicle control, and
-              data-driven reliability for real-world industrial products.
-            </p>
-
-            <div class="hero-badges">
-              <span class="hero-badge">Hardware + software fusion</span>
-              <span class="hero-badge">Predictive systems</span>
-              <span class="hero-badge">Industrial autonomy</span>
+            <div class="hero-strip" aria-label="Highlights">
+              <div class="container hero-strip-row">
+                <span class="strip-item">Autonomous logistics</span>
+                <span class="strip-sep" aria-hidden="true"></span>
+                <span class="strip-item">ECU ownership</span>
+                <span class="strip-sep" aria-hidden="true"></span>
+                <span class="strip-item">Intelligent controls</span>
+                <span class="strip-sep" aria-hidden="true"></span>
+                <span class="strip-item">Data-driven validation</span>
+                <span class="strip-sep" aria-hidden="true"></span>
+                <span class="strip-item">Root-cause intelligence</span>
+              </div>
             </div>
 
-            <ul class="hero-checklist">
-              <li>ECU lifecycle and CAN system architecture</li>
-              <li>Autonomous robotics mechatronics and system integration</li>
-              <li>Thermal validation and EV performance tuning</li>
-              <li>Field analytics, diagnostics, and root-cause intelligence</li>
-            </ul>
+            <div class="hero-meta" aria-label="Links">
+              <div class="container hero-meta-row">
+                <div class="hero-social">
+                  <a class="text-link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">GitHub</a>
+                  <a
+                    class="text-link"
+                    href="https://www.linkedin.com/in/mukesh-sethy-410699104"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    LinkedIn
+                  </a>
+                </div>
+                <a class="text-link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
+              </div>
+            </div>
+          </section>
 
-            <div class="hero-terminal">
-              <div class="term-row"><span>&gt;</span> Robotics · EV automation · embedded intelligence · diagnostics</div>
-              <div class="term-row"><span>&gt;</span> Production-grade validation · field analytics · safety-first architecture</div>
+          <section class="section offering" id="skills" aria-label="What I'm offering">
+            <div class="container">
+              <div class="offering-head">
+                <div>
+                  <p class="eyebrow">Capabilities</p>
+                  <h2 class="section-title">Futuristic Systems I Build</h2>
+                </div>
+                <div class="offering-head-right">
+                  <p class="muted">A polished, futuristic snapshot of the systems and technologies I deliver end-to-end.</p>
+                  <a class="btn btn-black" href="projects/">View Projects</a>
+                </div>
+              </div>
+
+              <div class="offering-layout">
+                <div class="offering-rail" aria-hidden="true">
+                  <span class="offering-rail-label">Scroll down</span>
+                  <span class="offering-rail-line"></span>
+                  <span class="offering-rail-btn"></span>
+                </div>
+
+                <div class="cards-grid offering-grid">
+                  <article class="skill-card offering-card">
+                    <h3 class="card-title">EV Systems / ECU</h3>
+                    <ul class="clean-list muted">
+                      <li>ECU ownership (spec to SOP)</li>
+                      <li>Cooling + HVAC monitoring</li>
+                      <li>CAN, sensors, actuators</li>
+                      <li>Thermal validation benches</li>
+                    </ul>
+                    <a class="offering-link" href="projects/">Read more</a>
+                  </article>
+
+                  <article class="skill-card offering-card">
+                    <h3 class="card-title">Robotics / Mechatronics</h3>
+                    <ul class="clean-list muted">
+                      <li>ASRS robotics</li>
+                      <li>System integration</li>
+                      <li>Diagnostics and RCA</li>
+                      <li>PLM + BOM processes</li>
+                    </ul>
+                    <a class="offering-link" href="projects/">Read more</a>
+                  </article>
+
+                  <article class="skill-card offering-card">
+                    <h3 class="card-title">Embedded / Controls</h3>
+                    <ul class="clean-list muted">
+                      <li>Control system thinking</li>
+                      <li>Arduino</li>
+                      <li>Microcontroller + ECU concepts</li>
+                      <li>MATLAB / Simulink</li>
+                    </ul>
+                    <a class="offering-link" href="projects/">Read more</a>
+                  </article>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section featured-projects" id="featured-projects" aria-label="Featured projects">
+            <div class="container">
+              <div class="section-head">
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="muted">A fast look at a few representative systems - view the full projects library for more.</p>
+              </div>
+
+              <div class="cards-grid">
+                <article class="project-card" data-category="robotics">
+                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="card-top">
+                    <h3 class="card-title">ASRS Robot Mechatronics + Field RCA</h3>
+                    <span class="pill">Robotics</span>
+                  </div>
+                  <p class="muted">
+                    Mechatronics development for ASRS robots, with site issue identification and root-cause analysis for
+                    debugging and reliability improvements.
+                  </p>
+                  <ul class="chips" aria-label="Technologies">
+                    <li>Mechatronics</li>
+                    <li>Diagnostics</li>
+                    <li>RCA</li>
+                    <li>Field support</li>
+                  </ul>
+                </article>
+
+                <article class="project-card" data-category="data">
+                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="card-top">
+                    <h3 class="card-title">e-Citaro Field Data Analytics + CAN Signal Visualization</h3>
+                    <span class="pill">Data / Tooling</span>
+                  </div>
+                  <p class="muted">
+                    Imported and processed logged system data from electric buses for monitoring. Built a Python GUI to
+                    visualize CAN signals and track cooling/HVAC behavior of high-voltage components.
+                  </p>
+                  <ul class="chips" aria-label="Technologies">
+                    <li>Python</li>
+                    <li>CAN</li>
+                    <li>Data processing</li>
+                    <li>GUI tooling</li>
+                    <li>EV systems</li>
+                  </ul>
+                </article>
+
+                <article class="project-card" data-category="ev-automotive">
+                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="card-top">
+                    <h3 class="card-title">Cooling Control Unit ECU Ownership (Spec - SOP)</h3>
+                    <span class="pill">EV / Automotive</span>
+                  </div>
+                  <p class="muted">
+                    Component responsible (ECU owner) for a cooling control ECU. Managed specification, requirements, I/O
+                    design, customer/country variants, and production issue RCA.
+                  </p>
+                  <ul class="chips" aria-label="Technologies">
+                    <li>CAN</li>
+                    <li>Sensors</li>
+                    <li>Actuators</li>
+                    <li>ECU lifecycle</li>
+                    <li>TARA</li>
+                    <li>HARA</li>
+                  </ul>
+                </article>
+              </div>
+
+              <div class="section-actions">
+                <a class="btn btn-black" href="projects/">View All Projects</a>
+                <a class="text-link" href="experience/">See Experience</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="section cta-compact" aria-label="Get in touch">
+            <div class="container">
+              <div class="cta-panel">
+                <h2 class="contact-title">
+                  <span class="contact-title-muted">Launch the next</span>
+                  <span class="contact-title-ink">generation of systems</span>
+                </h2>
+                <p class="muted contact-subtitle">
+                  Have an advanced robotics, electric vehicle, or embedded system challenge? Let&rsquo;s engineer it.
+                </p>
+                <div class="cta-actions">
+                  <a class="btn btn-black" href="contact/">Contact</a>
+                  <a class="text-link" href="projects/">Explore Projects</a>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer class="footer">
+          <div class="container footer-grid">
+            <div class="footer-col footer-brand">
+              <a class="footer-logo" href="./" aria-label="Back to home">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="footer-name">Mukesh Sethy</span>
+              </a>
+              <p class="footer-muted">Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers</p>
             </div>
 
-            <div class="hero-actions">
-              <a class="btn btn-black" href="#contact">Let&rsquo;s Talk</a>
-              <a class="text-link" href="resume.pdf" download>Download CV</a>
-            </div>
-          </div>
+            <nav class="footer-col" aria-label="Footer navigation">
+              <h3 class="footer-title">Explore</h3>
+              <a class="footer-link" href="./">Home</a>
+              <a class="footer-link" href="experience/">Experience</a>
+              <a class="footer-link" href="projects/">Projects</a>
+              <a class="footer-link" href="about/">About</a>
+              <a class="footer-link" href="contact/">Contact</a>
+            </nav>
 
-          <div class="hero-panel" aria-label="Portrait">
-            <div class="portrait">
-              <img
-                class="portrait-img"
-                src="assets/profile.jpg"
-                alt="Portrait of Mukesh Sethy"
-                width="720"
-                height="900"
-                loading="eager"
-                decoding="async"
-              />
-              <div class="hello-disk" aria-hidden="true">Hello</div>
-              <div class="doodle doodle-lines" aria-hidden="true"></div>
-              <div class="doodle doodle-squiggle" aria-hidden="true"></div>
-            </div>
-          </div>
-        </div>
+            <nav class="footer-col" aria-label="Project categories">
+              <h3 class="footer-title">Projects</h3>
+              <a class="footer-link" href="projects/" data-mega-filter="robotics">Robotics</a>
+              <a class="footer-link" href="projects/" data-mega-filter="ev-automotive">EV / Automotive</a>
+              <a class="footer-link" href="projects/" data-mega-filter="embedded">Embedded / Controls</a>
+              <a class="footer-link" href="projects/" data-mega-filter="data">Data / Tooling</a>
+            </nav>
 
-        <div class="hero-strip" aria-label="Highlights">
-          <div class="container hero-strip-row">
-            <span class="strip-item">Autonomous logistics</span>
-            <span class="strip-sep" aria-hidden="true"></span>
-            <span class="strip-item">ECU ownership</span>
-            <span class="strip-sep" aria-hidden="true"></span>
-            <span class="strip-item">Intelligent controls</span>
-            <span class="strip-sep" aria-hidden="true"></span>
-            <span class="strip-item">Data-driven validation</span>
-            <span class="strip-sep" aria-hidden="true"></span>
-            <span class="strip-item">Root-cause intelligence</span>
-          </div>
-        </div>
-
-        <div class="hero-meta" aria-label="Links">
-          <div class="container hero-meta-row">
-            <div class="hero-social">
-              <a class="text-link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">GitHub</a>
+            <div class="footer-col">
+              <h3 class="footer-title">Contact</h3>
+              <a class="footer-link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
               <a
-                class="text-link"
+                class="footer-link"
                 href="https://www.linkedin.com/in/mukesh-sethy-410699104"
                 target="_blank"
                 rel="noreferrer"
               >
                 LinkedIn
               </a>
-            </div>
-            <a class="text-link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="section offering" id="skills" aria-label="What I'm offering">
-        <div class="container">
-          <div class="offering-head">
-            <div>
-              <p class="eyebrow">Capabilities</p>
-              <h2 class="section-title">Futuristic Systems I Build</h2>
-            </div>
-            <div class="offering-head-right">
-              <p class="muted">
-                A polished, futuristic snapshot of the systems and technologies I deliver end-to-end.
-              </p>
-              <a class="btn btn-black" href="#projects">View Projects</a>
+              <a class="footer-link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">GitHub</a>
             </div>
           </div>
 
-          <div class="offering-layout">
-            <div class="offering-rail" aria-hidden="true">
-              <span class="offering-rail-label">Scroll down</span>
-              <span class="offering-rail-line"></span>
-              <span class="offering-rail-btn"></span>
-            </div>
-
-            <div class="cards-grid offering-grid">
-              <article class="skill-card offering-card">
-                <h3 class="card-title">EV Systems / ECU</h3>
-                <ul class="clean-list muted">
-                  <li>ECU ownership (spec to SOP)</li>
-                  <li>Cooling + HVAC monitoring</li>
-                  <li>CAN, sensors, actuators</li>
-                  <li>Thermal validation benches</li>
-                </ul>
-                <a class="offering-link" href="#projects">Read more</a>
-              </article>
-
-              <article class="skill-card offering-card">
-                <h3 class="card-title">Robotics / Mechatronics</h3>
-                <ul class="clean-list muted">
-                  <li>ASRS robotics</li>
-                  <li>System integration</li>
-                  <li>Diagnostics and RCA</li>
-                  <li>PLM + BOM processes</li>
-                </ul>
-                <a class="offering-link" href="#projects">Read more</a>
-              </article>
-
-              <article class="skill-card offering-card">
-                <h3 class="card-title">Embedded / Controls</h3>
-                <ul class="clean-list muted">
-                  <li>Control system thinking</li>
-                  <li>Arduino</li>
-                  <li>Microcontroller + ECU concepts</li>
-                  <li>MATLAB / Simulink</li>
-                </ul>
-                <a class="offering-link" href="#projects">Read more</a>
-              </article>
+          <div class="footer-bottom">
+            <div class="container footer-bottom-row">
+              <p class="footer-muted">
+                &copy; <span id="year"></span> Mukesh Sethy. Built with HTML, CSS, and vanilla JavaScript.
+              </p>
+              <a class="footer-link footer-toplink" href="#top">Back to top</a>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section class="section" id="experience">
-        <div class="container">
-          <h2 class="section-title">Experience</h2>
-          <div class="timeline" role="list">
-            <article class="timeline-card" role="listitem">
-              <div class="timeline-dot" aria-hidden="true"></div>
-              <h3 class="card-title">Electrical Engineer - Rapyuta Robotics (Chennai)</h3>
-              <p class="tiny muted">June 2025 - Present</p>
-              <p class="muted">Core mechatronics development engineer for ASRS robots.</p>
-              <ul class="clean-list">
-                <li>Contribute to mechatronics development for ASRS robotics</li>
-                <li>Introduced PLM tooling/process to streamline BOM handling for SCM and Engineering</li>
-                <li>Drive site issue identification and root-cause analysis for debugging</li>
-              </ul>
-              <div class="timeline-media" aria-hidden="true"></div>
-            </article>
-
-            <article class="timeline-card" role="listitem">
-              <div class="timeline-dot" aria-hidden="true"></div>
-              <h3 class="card-title">Senior Engineer - Daimler Trucks Innovation Centre India (Bengaluru)</h3>
-              <p class="tiny muted">Aug 2018 - June 2025</p>
-              <p class="muted">
-                ECU ownership for Cooling Control Unit and data analytics for e-Citaro (electric bus).
-              </p>
-              <ul class="clean-list">
-                <li>Owned ECU lifecycle from specification development to start of production (SOP)</li>
-                <li>Designed ECU I/O and wiring harness concept for CAN, sensors, and actuators</li>
-                <li>Supported cybersecurity (TARA) and functional safety (HARA) assessments</li>
-                <li>Performed root-cause analysis for production and component issues</li>
-                <li>Built a thermal test bench using real bus components for validation</li>
-                <li>Developed Python GUI tooling for CAN signal visualization and field monitoring</li>
-                <li>Supported MIL/SIL/HIL testing for cooling system application software</li>
-              </ul>
-              <div class="timeline-media" aria-hidden="true"></div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="projects">
-        <div class="container">
-          <div class="section-head">
-            <h2 class="section-title">Projects</h2>
-            <p class="muted">
-              Selected systems and solutions that showcase robotics, EV, embedded, and analytics work.
-            </p>
-          </div>
-
-          <div class="filters" role="group" aria-label="Project filters">
-            <button class="filter-button is-active" type="button" data-filter="all" aria-pressed="true">
-              All
-            </button>
-            <button class="filter-button" type="button" data-filter="robotics" aria-pressed="false">
-              Robotics
-            </button>
-            <button class="filter-button" type="button" data-filter="ev-automotive" aria-pressed="false">
-              EV / Automotive
-            </button>
-            <button class="filter-button" type="button" data-filter="embedded" aria-pressed="false">
-              Embedded / Controls
-            </button>
-            <button class="filter-button" type="button" data-filter="data" aria-pressed="false">
-              Data / Tooling
-            </button>
-          </div>
-
-          <div class="cards-grid" id="project-grid">
-            <article class="project-card" data-category="robotics">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">ASRS Robot Mechatronics + Field RCA</h3>
-                <span class="pill">Robotics</span>
-              </div>
-              <p class="muted">
-                Mechatronics development for ASRS robots, with site issue identification and root-cause analysis for
-                debugging and reliability improvements.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Mechatronics</li>
-                <li>Diagnostics</li>
-                <li>RCA</li>
-                <li>Field support</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="data">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">e-Citaro Field Data Analytics + CAN Signal Visualization</h3>
-                <span class="pill">Data / Tooling</span>
-              </div>
-              <p class="muted">
-                Imported and processed logged system data from electric buses for monitoring. Built a Python GUI to
-                visualize CAN signals and track cooling/HVAC behavior of high-voltage components.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Python</li>
-                <li>CAN</li>
-                <li>Data processing</li>
-                <li>GUI tooling</li>
-                <li>EV systems</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="ev-automotive">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">Cooling Control Unit ECU Ownership (Spec - SOP)</h3>
-                <span class="pill">EV / Automotive</span>
-              </div>
-              <p class="muted">
-                Component responsible (ECU owner) for a cooling control ECU. Managed specification, requirements, I/O
-                design, customer/country variants, and production issue RCA.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>CAN</li>
-                <li>Sensors</li>
-                <li>Actuators</li>
-                <li>ECU lifecycle</li>
-                <li>TARA</li>
-                <li>HARA</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="ev-automotive">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">Thermal Test Bench for Electric Bus Validation</h3>
-                <span class="pill">EV / Automotive</span>
-              </div>
-              <p class="muted">
-                Built a thermal test bench using real bus components to validate cooling system behavior and support
-                development and troubleshooting.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Validation</li>
-                <li>Thermal systems</li>
-                <li>Test bench</li>
-                <li>RCA</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="robotics">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">Path Planning for NAO Humanoid Robot (Master Thesis)</h3>
-                <span class="pill">Robotics</span>
-              </div>
-              <p class="muted">
-                Developed AI-based robot localization, obstacle mapping, and path planning using RGB-D camera data.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Localization</li>
-                <li>Mapping</li>
-                <li>Path planning</li>
-                <li>RGB-D</li>
-                <li>Computer vision</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="embedded">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">Automatic Launch Control System</h3>
-                <span class="pill">Embedded / Controls</span>
-              </div>
-              <p class="muted">
-                Designed a control system to reduce wheel slippage during vehicle launch using CAN bus commands.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Control systems</li>
-                <li>CAN</li>
-                <li>ECU concepts</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="embedded">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">Pneumatic Gear Shifting System</h3>
-                <span class="pill">Embedded / Controls</span>
-              </div>
-              <p class="muted">
-                Designed a semi-automatic gear shifting system controlled by a microcontroller and ECU.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Microcontroller</li>
-                <li>Actuation</li>
-                <li>ECU concepts</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="data">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">PLM + BOM Process Streamlining</h3>
-                <span class="pill">Data / Tooling</span>
-              </div>
-              <p class="muted">
-                Introduced PLM tooling and process to streamline BOM handling between engineering and supply chain.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>PLM</li>
-                <li>BOM</li>
-                <li>Process design</li>
-                <li>Traceability</li>
-              </ul>
-            </article>
-
-            <article class="project-card" data-category="embedded">
-              <div class="project-media" aria-hidden="true"></div>
-              <div class="card-top">
-                <h3 class="card-title">Balloon Satellite Telemetry and Tracking</h3>
-                <span class="pill">Embedded / Controls</span>
-              </div>
-              <p class="muted">
-                Led the electronics team to build a sensor/camera payload for atmospheric data logging and recovery.
-              </p>
-              <ul class="chips" aria-label="Technologies">
-                <li>Telemetry</li>
-                <li>Sensors</li>
-                <li>Data logging</li>
-              </ul>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section snapshot" id="about">
-        <div class="container">
-          <p class="eyebrow">Profile Snapshot</p>
-          <div class="snapshot-grid">
-            <div class="snapshot-copy">
-              <p class="snapshot-quote">
-                &ldquo;Accomplished mechatronics engineer with 7+ years of specialized experience in robotics,
-                electric vehicle technologies, embedded systems, and data-driven system validation.&rdquo;
-              </p>
-              <p class="snapshot-name">Mukesh Sethy</p>
-              <p class="muted snapshot-role">
-                Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers
-              </p>
-
-              <div class="snapshot-stats" aria-label="Highlights">
-                <div class="stat">
-                  <p class="stat-value">7+ years</p>
-                  <p class="stat-label">Experience</p>
-                </div>
-                <div class="stat">
-                  <p class="stat-value">Chennai, India</p>
-                  <p class="stat-label">Location</p>
-                </div>
-                <div class="stat">
-                  <p class="stat-value">ASRS systems</p>
-                  <p class="stat-label">Robotics</p>
-                </div>
-                <div class="stat">
-                  <p class="stat-value">Thermal control</p>
-                  <p class="stat-label">EV</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="snapshot-art" aria-label="Portrait cutout">
-              <div class="burst" aria-hidden="true"></div>
-              <img
-                class="snapshot-img"
-                src="assets/profile.jpg"
-                alt="Portrait of Mukesh Sethy"
-                width="720"
-                height="900"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-
-          <div class="about-body">
-            <h2 class="section-title">About</h2>
-            <div class="two-col">
-              <div>
-                <p>
-                  I work at the intersection of hardware, controls, and software, with a practical
-                  focus on making complex systems reliable in the real world. My background spans
-                  robotics development, automotive/EV systems, embedded controllers, and validation.
-                </p>
-                <p>
-                  I have owned ECUs end-to-end, designed I/O and wiring concepts for CAN + sensor/
-                  actuator communication, supported cybersecurity and functional safety assessments,
-                  and driven root-cause analysis for component and production issues.
-                </p>
-                <p>
-                  I also build data-driven workflows to monitor systems in the field (signal
-                  processing, dashboards/visualization, and GUI tooling) and validate solutions on
-                  benches and in test environments.
-                </p>
-              </div>
-              <div class="info-card">
-                <h3 class="card-title">At a glance</h3>
-                <ul class="meta-grid">
-                  <li><span>Experience</span><strong>7+ years</strong></li>
-                  <li><span>Location</span><strong>Chennai, India</strong></li>
-                  <li><span>Robotics</span><strong>ASRS systems</strong></li>
-                  <li><span>EV</span><strong>Thermal control</strong></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="education">
-        <div class="container">
-          <h2 class="section-title">Education</h2>
-          <div class="cards-grid">
-            <article class="skill-card">
-              <h3 class="card-title">NIT Rourkela (2013 - 2018)</h3>
-              <p class="muted">
-                Dual Degree: M.Tech in Mechatronics and Automation + B.Tech in Mechanical Engineering
-              </p>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">D.A.V Public School, Bhubaneswar (2010 - 2012)</h3>
-              <p class="muted">12th (CBSE)</p>
-            </article>
-            <article class="skill-card">
-              <h3 class="card-title">Publications &amp; Patent</h3>
-              <ul class="clean-list muted">
-                <li>A Sensor-based Computer Vision Approach for Humanoid Navigation (ICN:3I-2017, IIT Roorkee)</li>
-                <li>Humanoid Navigation: An Intelligent Computer Vision-Based Approach (iEECON2018)</li>
-                <li>An Intelligent Computer Vision Integrated Regression-Based Navigation Approach for Humanoids</li>
-                <li>Patent: System for Optimal Management of Energy Consumption in Electric Vehicles (202211025514)</li>
-              </ul>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="resume">
-        <div class="container">
-          <h2 class="section-title">Resume</h2>
-          <div class="resume-card">
-            <p class="muted">
-              Download my resume for a detailed view of my experience, projects, and technical background.
-            </p>
-            <a class="button primary" href="resume.pdf" download>Download Resume</a>
-            <p class="tiny muted">
-              Note: This site links to <code>resume.pdf</code> in the repository root.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section contact" id="contact">
-        <div class="container">
-          <h2 class="contact-title">
-            <span class="contact-title-muted">Launch the next</span>
-            <span class="contact-title-ink">generation of systems</span>
-          </h2>
-          <p class="muted contact-subtitle">
-            Have an advanced robotics, electric vehicle, or embedded system challenge? Let&rsquo;s engineer it.
-          </p>
-
-          <form class="contact-form" id="contact-form" autocomplete="on" novalidate>
-            <div class="form-grid form-grid-2">
-              <label class="field">
-                <span class="field-label">Name*</span>
-                <input
-                  class="field-input"
-                  type="text"
-                  name="name"
-                  placeholder="Hello.."
-                  autocomplete="name"
-                />
-              </label>
-              <label class="field">
-                <span class="field-label">Email*</span>
-                <input
-                  class="field-input"
-                  type="email"
-                  name="email"
-                  placeholder="Where can I reply"
-                  autocomplete="email"
-                />
-              </label>
-            </div>
-
-            <label class="field">
-              <span class="field-label">Company name</span>
-              <input
-                class="field-input"
-                type="text"
-                name="company"
-                placeholder="Your company or website?"
-                autocomplete="organization"
-              />
-            </label>
-
-            <label class="field">
-              <span class="field-label">What&rsquo;s in your mind?*</span>
-              <textarea class="field-input field-textarea" name="message" rows="3"></textarea>
-            </label>
-
-            <div class="topics" aria-label="Topics">
-              <button class="topic-pill" type="button" data-topic="Robotics">Robotics</button>
-              <button class="topic-pill" type="button" data-topic="EV Systems">EV Systems</button>
-              <button class="topic-pill" type="button" data-topic="Embedded">Embedded</button>
-              <button class="topic-pill" type="button" data-topic="Controls">Controls</button>
-              <button class="topic-pill" type="button" data-topic="Data Tooling">Data / Tooling</button>
-              <button class="topic-pill" type="button" data-topic="Validation">Validation</button>
-            </div>
-
-            <div class="contact-actions">
-              <button class="send-button" type="submit">
-                <span>Send Me</span>
-                <span class="send-arrow" aria-hidden="true"></span>
-              </button>
-              <p class="tiny muted">
-                Prefer email? <a class="link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
-              </p>
-            </div>
-          </form>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <div class="container footer-grid">
-        <div class="footer-col footer-brand">
-          <a class="footer-logo" href="#home" aria-label="Back to home">
-            <span class="brand-mark" aria-hidden="true"></span>
-            <span class="footer-name">Mukesh Sethy</span>
-          </a>
-          <p class="footer-muted">
-            Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers
-          </p>
-        </div>
-
-        <nav class="footer-col" aria-label="Footer navigation">
-          <h3 class="footer-title">Explore</h3>
-          <a class="footer-link" href="#about">About</a>
-          <a class="footer-link" href="#experience">Experience</a>
-          <a class="footer-link" href="#projects">Projects</a>
-          <a class="footer-link" href="#skills">Skills</a>
-          <a class="footer-link" href="#education">Education</a>
-        </nav>
-
-        <nav class="footer-col" aria-label="Footer projects">
-          <h3 class="footer-title">Projects</h3>
-          <a class="footer-link" href="#projects" data-mega-filter="robotics">Robotics</a>
-          <a class="footer-link" href="#projects" data-mega-filter="ev-automotive">EV / Automotive</a>
-          <a class="footer-link" href="#projects" data-mega-filter="embedded">Embedded / Controls</a>
-          <a class="footer-link" href="#projects" data-mega-filter="data">Data / Tooling</a>
-        </nav>
-
-        <div class="footer-col">
-          <h3 class="footer-title">Contact</h3>
-          <a class="footer-link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
-          <a
-            class="footer-link"
-            href="https://www.linkedin.com/in/mukesh-sethy-410699104"
-            target="_blank"
-            rel="noreferrer"
-          >
-            LinkedIn
-          </a>
-          <a class="footer-link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">GitHub</a>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <div class="container footer-bottom-row">
-          <p class="footer-muted">
-            &copy; <span id="year"></span> Mukesh Sethy. Built with HTML, CSS, and vanilla JavaScript.
-          </p>
-          <a class="footer-link footer-toplink" href="#home">Back to top</a>
-        </div>
-      </div>
-    </footer>
-
+        </footer>
       </div>
     </div>
 
