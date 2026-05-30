@@ -7,6 +7,32 @@
   const prefersReducedMotion =
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Lightweight perf tiering to keep the site snappy on low-end devices.
+  const perf = (() => {
+    const cores = Math.max(1, navigator.hardwareConcurrency || 4);
+    const coarse =
+      window.matchMedia && window.matchMedia("(pointer: coarse), (hover: none)").matches;
+    const small = Math.min(window.innerWidth || 0, window.innerHeight || 0) < 760;
+
+    let tier = "high";
+    if (prefersReducedMotion || coarse) tier = "low";
+    else if (cores <= 4 || small) tier = "low";
+    else if (cores <= 8) tier = "med";
+
+    return { tier, cores, coarse, small };
+  })();
+
+  function runWhenIdle(cb, timeout = 650) {
+    try {
+      if ("requestIdleCallback" in window) {
+        return window.requestIdleCallback(() => cb(), { timeout });
+      }
+    } catch (_) {
+      // Fall through to setTimeout.
+    }
+    return window.setTimeout(() => cb(), Math.min(360, timeout));
+  }
+
   const header = $(".site-header");
 
   // Mobile nav menu.
@@ -181,24 +207,43 @@
   // Ambient background FX (canvas).
   const ambientFxCanvas = $("#ambient-fx");
   if (ambientFxCanvas && !prefersReducedMotion) {
-    initAmbientFx(ambientFxCanvas);
+    // Defer to idle time so initial paint remains quick.
+    runWhenIdle(() => initAmbientFx(ambientFxCanvas), 900);
+  }
+
+  // Pointer light overlay (desktop fine pointer only).
+  const pointerLight = $("#pointer-light");
+  if (pointerLight && !prefersReducedMotion && !perf.coarse) {
+    runWhenIdle(() => initPointerLight(pointerLight), 520);
   }
 
   // Cursor FX (desktop fine pointer only).
   const cursorFx = $("#cursor-fx");
-  if (cursorFx && !prefersReducedMotion) {
-    initCursorFx(cursorFx);
+  if (cursorFx && !prefersReducedMotion && !perf.coarse) {
+    runWhenIdle(() => initCursorFx(cursorFx), 700);
+  }
+
+  // Click ripples (subtle HUD feedback).
+  const clickRipples = $("#click-ripples");
+  if (clickRipples && !prefersReducedMotion) {
+    initClickRipples(clickRipples);
   }
 
   // Futuristic hero FX: interactive flow-field trails (canvas).
   const heroFxCanvas = $("#hero-fx");
   if (heroFxCanvas && !prefersReducedMotion) {
-    initHeroFx(heroFxCanvas);
+    // Let the browser paint the hero once before starting the canvas loop.
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => initHeroFx(heroFxCanvas)));
   }
 
   // Pointer-reactive 3D tilt + glare for cards.
   if (!prefersReducedMotion) {
     initTiltCards();
+  }
+
+  // Magnetic micro-motion on interactive elements (desktop only).
+  if (!prefersReducedMotion && !perf.coarse && perf.tier !== "low") {
+    runWhenIdle(() => initMagneticMotion(), 750);
   }
 
   // Scroll progress bar + to-top button (rAF throttled).
@@ -667,6 +712,199 @@
     ring.style.setProperty("--cy", `${ty.toFixed(2)}px`);
   }
 
+  function initPointerLight(el) {
+    const mq = window.matchMedia
+      ? window.matchMedia("(hover: hover) and (pointer: fine)")
+      : null;
+    if (!mq || !mq.matches) return;
+
+    const root = document.documentElement;
+
+    // Keep it subtle but responsive; values are percentages so it scales with viewport.
+    let x = 0.5;
+    let y = 0.28;
+    let tx = x;
+    let ty = y;
+
+    let raf = 0;
+    let running = false;
+
+    function setVars() {
+      root.style.setProperty("--px", `${(x * 100).toFixed(2)}%`);
+      root.style.setProperty("--py", `${(y * 100).toFixed(2)}%`);
+    }
+
+    function tick() {
+      raf = 0;
+      const dx = tx - x;
+      const dy = ty - y;
+      x += dx * 0.11;
+      y += dy * 0.11;
+      setVars();
+
+      if (Math.abs(dx) + Math.abs(dy) > 0.0006) {
+        raf = window.requestAnimationFrame(tick);
+      } else {
+        running = false;
+      }
+    }
+
+    function onMove(e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      const vw = Math.max(1, window.innerWidth || 1);
+      const vh = Math.max(1, window.innerHeight || 1);
+      tx = (e.clientX || 0) / vw;
+      ty = (e.clientY || 0) / vh;
+      root.classList.add("has-pointer-light");
+      if (!running) {
+        running = true;
+        raf = window.requestAnimationFrame(tick);
+      }
+    }
+
+    function onLeaveWindow(e) {
+      if (e.relatedTarget || e.toElement) return;
+      root.classList.remove("has-pointer-light");
+    }
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("mouseout", onLeaveWindow, { passive: true });
+    window.addEventListener("resize", setVars);
+
+    // Initialize once so gradients don't jump from default.
+    el.style.opacity = "";
+    setVars();
+  }
+
+  function initMagneticMotion() {
+    const mq = window.matchMedia
+      ? window.matchMedia("(hover: hover) and (pointer: fine)")
+      : null;
+    if (!mq || !mq.matches) return;
+
+    const els = $$(".btn, .header-cta, .filter-button, .topic-pill, .send-button");
+    if (!els.length) return;
+
+    const maxPull = perf.tier === "high" ? 14 : 10;
+    const damp = perf.tier === "high" ? 0.22 : 0.18;
+    const strength = perf.tier === "high" ? 0.8 : 0.65;
+
+    els.forEach((el) => {
+      let raf = 0;
+      let hovering = false;
+      let tx = 0;
+      let ty = 0;
+      let cx = 0;
+      let cy = 0;
+
+      function set(x, y) {
+        el.style.setProperty("--bx", `${x.toFixed(2)}px`);
+        el.style.setProperty("--by", `${y.toFixed(2)}px`);
+      }
+
+      function reset() {
+        tx = 0;
+        ty = 0;
+        cx = 0;
+        cy = 0;
+        set(0, 0);
+      }
+
+      function step() {
+        raf = 0;
+        cx += (tx - cx) * damp;
+        cy += (ty - cy) * damp;
+        set(cx, cy);
+        if (hovering) raf = window.requestAnimationFrame(step);
+      }
+
+      el.addEventListener("pointerenter", (e) => {
+        if (e.pointerType && e.pointerType !== "mouse") return;
+        hovering = true;
+        if (!raf) raf = window.requestAnimationFrame(step);
+      });
+
+      el.addEventListener(
+        "pointermove",
+        (e) => {
+          if (!hovering) return;
+          if (e.pointerType && e.pointerType !== "mouse") return;
+          const r = el.getBoundingClientRect();
+          const cx0 = r.left + r.width * 0.5;
+          const cy0 = r.top + r.height * 0.5;
+          const dx = (e.clientX - cx0) / Math.max(1, r.width);
+          const dy = (e.clientY - cy0) / Math.max(1, r.height);
+          const pull = maxPull * Math.max(0.65, Math.min(1.0, Math.min(r.width, r.height) / 140));
+          const nx = Math.max(-1, Math.min(1, dx * 2));
+          const ny = Math.max(-1, Math.min(1, dy * 2));
+          tx = nx * pull * strength;
+          ty = ny * pull * strength;
+          if (!raf) raf = window.requestAnimationFrame(step);
+        },
+        { passive: true }
+      );
+
+      el.addEventListener("pointerleave", () => {
+        hovering = false;
+        if (raf) window.cancelAnimationFrame(raf);
+        raf = 0;
+        reset();
+      });
+    });
+  }
+
+  function initClickRipples(root) {
+    let lastTs = 0;
+    const cooldown = perf.tier === "high" ? 40 : 85;
+    const maxRipples = perf.tier === "high" ? 10 : perf.tier === "med" ? 7 : 5;
+
+    function addRipple(x, y) {
+      const vw = Math.max(1, window.innerWidth || 1);
+      const vh = Math.max(1, window.innerHeight || 1);
+
+      // Distance to farthest corner (size the ring so it fills the viewport).
+      const dx = Math.max(x, vw - x);
+      const dy = Math.max(y, vh - y);
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const size = Math.max(220, Math.min(1600, dist * 2));
+
+      const r = document.createElement("div");
+      r.className = "click-ripple";
+      r.style.setProperty("--x", `${x.toFixed(2)}px`);
+      r.style.setProperty("--y", `${y.toFixed(2)}px`);
+      r.style.setProperty("--s", `${size.toFixed(2)}px`);
+
+      root.appendChild(r);
+
+      // Trim old nodes to keep DOM tiny.
+      while (root.childElementCount > maxRipples) {
+        const first = root.firstElementChild;
+        if (!first) break;
+        root.removeChild(first);
+      }
+
+      // Remove after animation.
+      window.setTimeout(() => {
+        if (r && r.parentNode === root) root.removeChild(r);
+      }, 980);
+    }
+
+    window.addEventListener(
+      "pointerdown",
+      (e) => {
+        const now = performance.now();
+        if (now - lastTs < cooldown) return;
+        lastTs = now;
+
+        // Ignore non-primary buttons (e.g., right click).
+        if (typeof e.button === "number" && e.button !== 0) return;
+
+        addRipple(e.clientX || 0, e.clientY || 0);
+      },
+      { passive: true }
+    );
+  }
+
   function initAmbientFx(canvas) {
     const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
@@ -676,6 +914,11 @@
     let dpr = 1;
     let raf = 0;
     let t = 0;
+    let last = -1;
+
+    const targetFps = perf.tier === "high" ? 30 : perf.tier === "med" ? 24 : 18;
+    const frameMs = 1000 / targetFps;
+    const dprCap = perf.tier === "high" ? 1.75 : perf.tier === "med" ? 1.5 : 1.25;
 
     const pointer = { x: 0, y: 0, has: false };
     let pts = [];
@@ -685,7 +928,10 @@
     }
 
     function seed() {
-      const target = clamp(Math.floor((w * h) / 24000), 46, 120);
+      const div = perf.tier === "high" ? 28000 : perf.tier === "med" ? 36000 : 48000;
+      const minN = perf.tier === "high" ? 40 : perf.tier === "med" ? 34 : 28;
+      const maxN = perf.tier === "high" ? 100 : perf.tier === "med" ? 82 : 68;
+      const target = clamp(Math.floor((w * h) / div), minN, maxN);
       pts = Array.from({ length: target }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -698,7 +944,7 @@
     function resize() {
       w = Math.max(1, window.innerWidth || 1);
       h = Math.max(1, window.innerHeight || 1);
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      dpr = Math.min(dprCap, window.devicePixelRatio || 1);
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       canvas.style.width = `${w}px`;
@@ -707,25 +953,37 @@
       seed();
     }
 
-    function draw() {
+    let haze = null;
+    let hazeAge = 0;
+
+    function draw(now) {
       raf = window.requestAnimationFrame(draw);
-      t += 0.016;
+      if (last < 0) last = now;
+      const dt = now - last;
+      if (dt < frameMs) return;
+      last = now;
+
+      t += dt / 1000;
 
       ctx.clearRect(0, 0, w, h);
 
       // Low-contrast base haze for depth.
       ctx.globalCompositeOperation = "source-over";
-      const grad = ctx.createRadialGradient(
-        w * (0.55 + 0.06 * Math.sin(t * 0.7)),
-        h * (0.35 + 0.06 * Math.cos(t * 0.6)),
-        40,
-        w * 0.5,
-        h * 0.5,
-        Math.max(w, h) * 0.7
-      );
-      grad.addColorStop(0, "rgba(225,26,39,0.055)");
-      grad.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = grad;
+      hazeAge += dt;
+      if (!haze || hazeAge > 180) {
+        hazeAge = 0;
+        haze = ctx.createRadialGradient(
+          w * (0.55 + 0.06 * Math.sin(t * 0.7)),
+          h * (0.35 + 0.06 * Math.cos(t * 0.6)),
+          40,
+          w * 0.5,
+          h * 0.5,
+          Math.max(w, h) * 0.7
+        );
+        haze.addColorStop(0, "rgba(225,26,39,0.055)");
+        haze.addColorStop(1, "rgba(0,0,0,0)");
+      }
+      ctx.fillStyle = haze;
       ctx.fillRect(0, 0, w, h);
 
       // Update points.
@@ -741,13 +999,15 @@
       }
 
       // Connections.
-      const link = clamp(Math.min(w, h) * 0.18, 110, 170);
+      const linkMax = perf.tier === "high" ? 170 : perf.tier === "med" ? 155 : 140;
+      const link = clamp(Math.min(w, h) * 0.16, 95, linkMax);
       const link2 = link * link;
       const pr = pointer.has ? link * 1.35 : 0;
       const pr2 = pr * pr;
 
       ctx.lineWidth = 1;
       ctx.lineCap = "round";
+      ctx.globalAlpha = 1;
 
       for (let i = 0; i < pts.length; i++) {
         const a = pts[i];
@@ -758,8 +1018,7 @@
           const d2 = dx * dx + dy * dy;
           if (d2 > link2) continue;
 
-          const d = Math.sqrt(d2) || 1;
-          const base = (1 - d / link) * 0.12;
+          const base = (1 - d2 / link2) * 0.12;
 
           // Mouse proximity boosts brightness + shifts towards brand red.
           let boost = 0;
@@ -767,17 +1026,19 @@
             const adx = a.x - pointer.x;
             const ady = a.y - pointer.y;
             const bd2 = adx * adx + ady * ady;
-            if (bd2 < pr2) boost = (1 - Math.sqrt(bd2) / pr) * 0.22;
+            if (bd2 < pr2) boost = (1 - bd2 / pr2) * 0.22;
           }
 
           const alpha = Math.min(0.22, base + boost);
-          ctx.strokeStyle = boost > 0.02 ? `rgba(225,26,39,${alpha})` : `rgba(0,0,0,${alpha})`;
+          ctx.globalAlpha = alpha;
+          ctx.strokeStyle = boost > 0.02 ? "#e11a27" : "#000000";
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
           ctx.stroke();
         }
       }
+      ctx.globalAlpha = 1;
 
       // Nodes.
       for (let i = 0; i < pts.length; i++) {
@@ -786,20 +1047,25 @@
         if (pointer.has) {
           const dx = p.x - pointer.x;
           const dy = p.y - pointer.y;
-          const d = Math.sqrt(dx * dx + dy * dy) || 1;
-          glow += Math.max(0, 1 - d / (link * 1.15)) * 0.22;
+          const rr = link * 1.15;
+          const rr2 = rr * rr;
+          const d2 = dx * dx + dy * dy;
+          glow += Math.max(0, 1 - d2 / rr2) * 0.22;
         }
 
-        ctx.fillStyle = `rgba(225,26,39,${Math.min(0.26, glow)})`;
+        ctx.globalAlpha = Math.min(0.26, glow);
+        ctx.fillStyle = "#e11a27";
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1.25, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(0,0,0,${Math.min(0.14, glow * 0.75)})`;
+        ctx.globalAlpha = Math.min(0.14, glow * 0.75);
+        ctx.fillStyle = "#000000";
         ctx.beginPath();
         ctx.arc(p.x + 0.2, p.y + 0.2, 0.95, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.globalAlpha = 1;
 
       // Occasional scanning sweep.
       const sx = (t * 42) % (w + 220) - 220;
@@ -829,11 +1095,12 @@
         window.cancelAnimationFrame(raf);
         raf = 0;
       } else if (!raf) {
-        draw();
+        last = -1;
+        raf = window.requestAnimationFrame(draw);
       }
     });
 
-    draw();
+    raf = window.requestAnimationFrame(draw);
   }
 
   function initHeroFx(canvas) {
@@ -847,6 +1114,17 @@
     let particles = [];
     let raf = 0;
     let t = 0;
+    let last = -1;
+    let running = true;
+
+    const targetFps = perf.tier === "high" ? 45 : perf.tier === "med" ? 36 : 28;
+    const frameMs = 1000 / targetFps;
+    const dprCap = perf.tier === "high" ? 2 : perf.tier === "med" ? 1.75 : 1.5;
+    const influence = perf.tier === "high" ? 180 : perf.tier === "med" ? 170 : 150;
+    const drawWhite = perf.tier === "high";
+    const showNodes = perf.tier !== "low";
+    const nodeEvery = perf.tier === "high" ? 4 : perf.tier === "med" ? 6 : 9;
+    const nodeSize = perf.tier === "high" ? 1.35 : perf.tier === "med" ? 1.15 : 0.95;
 
     const pointer = {
       x: 0,
@@ -886,7 +1164,10 @@
     }
 
     function reseed() {
-      const target = clamp(Math.floor((w * h) / 3200), 260, 860);
+      const div = perf.tier === "high" ? 4200 : perf.tier === "med" ? 5600 : 7600;
+      const minN = perf.tier === "high" ? 220 : perf.tier === "med" ? 170 : 120;
+      const maxN = perf.tier === "high" ? 720 : perf.tier === "med" ? 520 : 420;
+      const target = clamp(Math.floor((w * h) / div), minN, maxN);
       particles = Array.from({ length: target }, () => ({
         x: Math.random() * w,
         y: Math.random() * h,
@@ -903,7 +1184,7 @@
       const r = hero.getBoundingClientRect();
       w = Math.max(1, Math.floor(r.width));
       h = Math.max(1, Math.floor(r.height));
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      dpr = Math.min(dprCap, window.devicePixelRatio || 1);
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
       canvas.style.width = `${w}px`;
@@ -927,9 +1208,15 @@
       if (particles.length > 1100) particles.splice(0, particles.length - 1100);
     }
 
-    function draw() {
+    function draw(now) {
+      if (!running) return;
       raf = window.requestAnimationFrame(draw);
-      t += 16;
+      if (last < 0) last = now;
+      const dt = now - last;
+      if (dt < frameMs) return;
+      last = now;
+
+      t += dt;
 
       // Fade previous frame (trail effect).
       ctx.globalCompositeOperation = "source-over";
@@ -947,6 +1234,10 @@
         pointer.y = h * (0.46 + 0.12 * Math.cos(t * 0.00028));
       }
 
+      // Avoid per-particle string allocations; use globalAlpha + fixed colors.
+      ctx.strokeStyle = "#e11a27";
+      ctx.lineWidth = 1.2;
+
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         const ox = p.x;
@@ -960,9 +1251,9 @@
         const dx = pointer.x - p.x;
         const dy = pointer.y - p.y;
         const d2 = dx * dx + dy * dy;
-        if (d2 < 180 * 180) {
+        if (d2 < influence * influence) {
           const d = Math.sqrt(d2) || 1;
-          const pull = (1 - d / 180) * (pointer.down ? 1.8 : 1.0);
+          const pull = (1 - d / influence) * (pointer.down ? 1.8 : 1.0);
           // Add a tangential component for "fluid" rotation.
           p.vx += (-dy / d) * pull * 0.65 + (dx / d) * pull * 0.12;
           p.vy += (dx / d) * pull * 0.65 + (dy / d) * pull * 0.12;
@@ -982,20 +1273,43 @@
         // Two-tone strokes: red + cool white.
         const a = 0.10 + Math.min(0.22, Math.abs(p.vx) + Math.abs(p.vy)) * 0.08;
 
-        ctx.lineWidth = 1.2;
-        ctx.strokeStyle = `rgba(225,26,39,${a})`;
+        ctx.globalAlpha = a;
         ctx.beginPath();
         ctx.moveTo(ox, oy);
         ctx.lineTo(p.x, p.y);
         ctx.stroke();
 
-        ctx.lineWidth = 0.9;
-        ctx.strokeStyle = `rgba(255,255,255,${a * 0.55})`;
-        ctx.beginPath();
-        ctx.moveTo(ox + 0.4, oy + 0.2);
-        ctx.lineTo(p.x + 0.4, p.y + 0.2);
-        ctx.stroke();
+        if (drawWhite) {
+          ctx.globalAlpha = a * 0.55;
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 0.9;
+          ctx.beginPath();
+          ctx.moveTo(ox + 0.4, oy + 0.2);
+          ctx.lineTo(p.x + 0.4, p.y + 0.2);
+          ctx.stroke();
+          ctx.strokeStyle = "#e11a27";
+        }
+
+        // Glowing nodes (sampled for performance).
+        if (showNodes && i % nodeEvery === 0) {
+          const spd = Math.abs(p.vx) + Math.abs(p.vy);
+          const g = Math.min(0.42, 0.12 + spd * 0.08);
+          ctx.globalAlpha = g;
+          ctx.fillStyle = "#e11a27";
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, nodeSize + p.s * 0.28, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (drawWhite) {
+            ctx.globalAlpha = g * 0.5;
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(p.x + 0.4, p.y + 0.2, nodeSize * 0.78, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
       }
+      ctx.globalAlpha = 1;
     }
 
     function setPointerFromEvent(e) {
@@ -1048,10 +1362,32 @@
         window.cancelAnimationFrame(raf);
         raf = 0;
       } else if (!raf) {
-        draw();
+        running = true;
+        raf = window.requestAnimationFrame(draw);
       }
     });
 
-    draw();
+    // Pause when the hero isn't visible (big CPU saver on scroll).
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          const e = entries && entries[0];
+          const vis = !!(e && e.isIntersecting);
+          if (!vis) {
+            running = false;
+            window.cancelAnimationFrame(raf);
+            raf = 0;
+          } else if (!running) {
+            running = true;
+            last = -1;
+            raf = window.requestAnimationFrame(draw);
+          }
+        },
+        { threshold: 0.06 }
+      );
+      io.observe(hero);
+    }
+
+    raf = window.requestAnimationFrame(draw);
   }
 })();
