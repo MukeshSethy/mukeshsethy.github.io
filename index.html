@@ -29,34 +29,37 @@
     <div class="page">
       <div class="sheet">
         <header class="site-header">
-          <nav class="mast" aria-label="Primary">
-            <a class="mast-mark" href="#home" aria-label="Home">it&rsquo;s me</a>
+          <div class="container header-row">
+            <a class="brand" href="#home" aria-label="Home">
+              <span class="brand-mark" aria-hidden="true"></span>
+              <span class="brand-name">Mukesh Sethy</span>
+            </a>
 
-            <div class="mast-links">
-              <a class="mast-link" href="#projects">
-                <span class="mast-link-title">My Projects</span>
-                <span class="mast-link-desc">
-                  Selected professional and academic projects. Use filters to focus on your role needs.
-                </span>
-              </a>
-              <a class="mast-link" href="#about">
-                <span class="mast-link-title">About Me</span>
-                <span class="mast-link-desc">
-                  I work at the intersection of hardware, controls, and software, with a practical focus.
-                </span>
-              </a>
-              <a class="mast-link" href="#contact">
-                <span class="mast-link-title">Contact me</span>
-                <span class="mast-link-desc">mukeshatnitr@gmail.com</span>
-              </a>
-            </div>
+            <nav class="nav-links" id="nav-links" aria-label="Primary">
+              <a class="nav-link" href="#home">Home</a>
+              <a class="nav-link" href="#experience">Experience</a>
+              <a class="nav-link" href="#projects">Projects</a>
+              <a class="nav-link" href="#skills">Offerings</a>
+              <a class="nav-link" href="#about">About</a>
+              <a class="nav-link" href="#contact">Contact</a>
+              <a class="header-cta" href="resume.pdf" download>Download CV</a>
+            </nav>
 
-            <a class="mast-cta" href="resume.pdf" download>Download Cv</a>
-          </nav>
+            <button
+              class="nav-toggle"
+              type="button"
+              aria-label="Open menu"
+              aria-expanded="false"
+              aria-controls="nav-links"
+            >
+              <span class="nav-toggle-bars" aria-hidden="true"></span>
+            </button>
+          </div>
         </header>
 
         <main id="main">
       <section class="section hero" id="home" aria-label="Home">
+        <div class="hero-stripe" aria-hidden="true"></div>
         <div class="container hero-grid">
           <div class="hero-copy">
             <p class="eyebrow">Robotics Engineer</p>
@@ -217,6 +220,7 @@
                 <li>Introduced PLM tooling/process to streamline BOM handling for SCM and Engineering</li>
                 <li>Drive site issue identification and root-cause analysis for debugging</li>
               </ul>
+              <div class="timeline-media" aria-hidden="true"></div>
             </article>
 
             <article class="timeline-card" role="listitem">
@@ -235,6 +239,7 @@
                 <li>Developed Python GUI tooling for CAN signal visualization and field monitoring</li>
                 <li>Supported MIL/SIL/HIL testing for cooling system application software</li>
               </ul>
+              <div class="timeline-media" aria-hidden="true"></div>
             </article>
           </div>
         </div>
@@ -269,6 +274,7 @@
 
           <div class="cards-grid" id="project-grid">
             <article class="project-card" data-category="robotics">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">ASRS Robot Mechatronics + Field RCA</h3>
                 <span class="pill">Robotics</span>
@@ -286,6 +292,7 @@
             </article>
 
             <article class="project-card" data-category="data">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">e-Citaro Field Data Analytics + CAN Signal Visualization</h3>
                 <span class="pill">Data / Tooling</span>
@@ -304,6 +311,7 @@
             </article>
 
             <article class="project-card" data-category="ev-automotive">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">Cooling Control Unit ECU Ownership (Spec - SOP)</h3>
                 <span class="pill">EV / Automotive</span>
@@ -323,6 +331,7 @@
             </article>
 
             <article class="project-card" data-category="ev-automotive">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">Thermal Test Bench for Electric Bus Validation</h3>
                 <span class="pill">EV / Automotive</span>
@@ -340,6 +349,7 @@
             </article>
 
             <article class="project-card" data-category="robotics">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">Path Planning for NAO Humanoid Robot (Master Thesis)</h3>
                 <span class="pill">Robotics</span>
@@ -357,6 +367,7 @@
             </article>
 
             <article class="project-card" data-category="embedded">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">Automatic Launch Control System</h3>
                 <span class="pill">Embedded / Controls</span>
@@ -372,6 +383,7 @@
             </article>
 
             <article class="project-card" data-category="embedded">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">Pneumatic Gear Shifting System</h3>
                 <span class="pill">Embedded / Controls</span>
@@ -387,6 +399,7 @@
             </article>
 
             <article class="project-card" data-category="data">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">PLM + BOM Process Streamlining</h3>
                 <span class="pill">Data / Tooling</span>
@@ -403,6 +416,7 @@
             </article>
 
             <article class="project-card" data-category="embedded">
+              <div class="project-media" aria-hidden="true"></div>
               <div class="card-top">
                 <h3 class="card-title">Balloon Satellite Telemetry and Tracking</h3>
                 <span class="pill">Embedded / Controls</span>
