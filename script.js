@@ -178,6 +178,18 @@
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
 
+  // Ambient background FX (canvas).
+  const ambientFxCanvas = $("#ambient-fx");
+  if (ambientFxCanvas && !prefersReducedMotion) {
+    initAmbientFx(ambientFxCanvas);
+  }
+
+  // Cursor FX (desktop fine pointer only).
+  const cursorFx = $("#cursor-fx");
+  if (cursorFx && !prefersReducedMotion) {
+    initCursorFx(cursorFx);
+  }
+
   // Futuristic hero FX: interactive flow-field trails (canvas).
   const heroFxCanvas = $("#hero-fx");
   if (heroFxCanvas && !prefersReducedMotion) {
@@ -204,6 +216,9 @@
       const scrollTop = window.scrollY || doc.scrollTop || 0;
       const max = Math.max(1, doc.scrollHeight - window.innerHeight);
       const pct = Math.min(1, Math.max(0, scrollTop / max));
+
+      // Used for subtle scroll-linked parallax in CSS (kept lightweight).
+      doc.style.setProperty("--scroll", `${scrollTop}px`);
 
       if (progressBar) progressBar.style.width = `${(pct * 100).toFixed(2)}%`;
       if (toTop) toTop.classList.toggle("is-visible", scrollTop > 720);
@@ -370,12 +385,44 @@
     if (projectsSection) sections.push({ id: "projects", el: projectsSection });
   }
 
+  // Smooth nav indicator that glides under links (desktop only).
+  const navIndicator = $("#nav-indicator");
+  let activeNavEl = null;
+  let hoverNavEl = null;
+
+  function canUseNavIndicator() {
+    return !!(navIndicator && navLinks && window.innerWidth > 980);
+  }
+
+  function moveNavIndicator(el) {
+    if (!canUseNavIndicator() || !el) {
+      if (navIndicator) navIndicator.classList.remove("is-visible");
+      return;
+    }
+
+    const pr = navLinks.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    const x = Math.round(r.left - pr.left);
+    const w = Math.max(0, Math.round(r.width));
+
+    navIndicator.style.width = `${w}px`;
+    navIndicator.style.transform = `translateX(${x}px)`;
+    navIndicator.classList.add("is-visible");
+  }
+
+  function syncNavIndicator() {
+    moveNavIndicator(hoverNavEl || activeNavEl || navAnchors[0]);
+  }
+
   function setActiveNav(id) {
+    activeNavEl = null;
     navAnchors.forEach((a) => {
       const isActive = a.getAttribute("href") === `#${id}`;
       a.classList.toggle("is-active", isActive);
+      if (isActive) activeNavEl = a;
     });
     if (projectsNav) projectsNav.classList.toggle("is-active", id === "projects");
+    if (!hoverNavEl) syncNavIndicator();
   }
 
   if (sections.length) {
@@ -390,6 +437,36 @@
     );
 
     sections.forEach(({ el }) => navIO.observe(el));
+  }
+
+  if (navIndicator && navAnchors.length && navLinks) {
+    // Hover/focus snaps the indicator to the item; leaving restores active position.
+    navAnchors.forEach((a) => {
+      a.addEventListener("pointerenter", () => {
+        hoverNavEl = a;
+        syncNavIndicator();
+      });
+      a.addEventListener("pointerleave", () => {
+        hoverNavEl = null;
+        syncNavIndicator();
+      });
+      a.addEventListener("focus", () => {
+        hoverNavEl = a;
+        syncNavIndicator();
+      });
+      a.addEventListener("blur", () => {
+        hoverNavEl = null;
+        syncNavIndicator();
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      hoverNavEl = null;
+      syncNavIndicator();
+    });
+
+    // Initial position.
+    window.requestAnimationFrame(() => syncNavIndicator());
   }
 
   function initTiltCards() {
@@ -454,6 +531,309 @@
     });
 
     reset();
+  }
+
+  function initCursorFx(root) {
+    const mq = window.matchMedia
+      ? window.matchMedia("(hover: hover) and (pointer: fine)")
+      : null;
+    if (!mq || !mq.matches) return;
+
+    const ring = $("#cursor-ring", root);
+    const dot = $("#cursor-dot", root);
+    if (!ring || !dot) return;
+
+    let tx = window.innerWidth * 0.5;
+    let ty = window.innerHeight * 0.5;
+    let dx = tx;
+    let dy = ty;
+    let rx = tx;
+    let ry = ty;
+
+    let raf = 0;
+    let visible = false;
+    let down = false;
+    let hoverEl = null;
+
+    const hoverSel =
+      "a, button, .btn, .filter-button, .topic-pill, .nav-toggle, .header-cta, .text-link";
+
+    function step() {
+      raf = 0;
+      if (!visible) return;
+
+      // Dot is tighter; ring has more "drag" for the premium feel.
+      dx += (tx - dx) * 0.42;
+      dy += (ty - dy) * 0.42;
+
+      let mx = tx;
+      let my = ty;
+      if (hoverEl && hoverEl.getBoundingClientRect) {
+        const r = hoverEl.getBoundingClientRect();
+        const cx = r.left + r.width * 0.5;
+        const cy = r.top + r.height * 0.5;
+        mx = tx + (cx - tx) * 0.22;
+        my = ty + (cy - ty) * 0.22;
+      }
+
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+
+      dot.style.setProperty("--cx", `${dx.toFixed(2)}px`);
+      dot.style.setProperty("--cy", `${dy.toFixed(2)}px`);
+      ring.style.setProperty("--cx", `${rx.toFixed(2)}px`);
+      ring.style.setProperty("--cy", `${ry.toFixed(2)}px`);
+
+      raf = window.requestAnimationFrame(step);
+    }
+
+    function onMove(e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      tx = e.clientX;
+      ty = e.clientY;
+      document.documentElement.classList.add("has-cursor-fx");
+      visible = true;
+      if (!raf) raf = window.requestAnimationFrame(step);
+    }
+
+    function onDown(e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      down = true;
+      root.classList.add("is-down");
+    }
+
+    function onUp() {
+      down = false;
+      root.classList.remove("is-down");
+    }
+
+    function setHover(el) {
+      hoverEl = el;
+      root.classList.toggle("is-hover", !!hoverEl);
+    }
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onDown, { passive: true });
+    window.addEventListener("pointerup", onUp, { passive: true });
+    window.addEventListener("blur", onUp);
+
+    document.addEventListener(
+      "pointerover",
+      (e) => {
+        const t = e.target;
+        if (!t || !t.closest) return;
+        const hit = t.closest(hoverSel);
+        if (hit) setHover(hit);
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "pointerout",
+      (e) => {
+        if (!hoverEl) return;
+        const rel = e.relatedTarget;
+        if (rel && hoverEl.contains && hoverEl.contains(rel)) return;
+        setHover(null);
+      },
+      { passive: true }
+    );
+
+    // When the pointer leaves the window, stop animating until the next move.
+    window.addEventListener(
+      "mouseout",
+      (e) => {
+        if (e.relatedTarget || e.toElement) return;
+        visible = false;
+        setHover(null);
+      },
+      { passive: true }
+    );
+
+    // Keep center-ish on resize so it doesn't jump to (0,0).
+    window.addEventListener("resize", () => {
+      tx = window.innerWidth * 0.5;
+      ty = window.innerHeight * 0.5;
+      dx = tx;
+      dy = ty;
+      rx = tx;
+      ry = ty;
+    });
+
+    // Kick-start (hidden until first move).
+    dot.style.setProperty("--cx", `${tx.toFixed(2)}px`);
+    dot.style.setProperty("--cy", `${ty.toFixed(2)}px`);
+    ring.style.setProperty("--cx", `${tx.toFixed(2)}px`);
+    ring.style.setProperty("--cy", `${ty.toFixed(2)}px`);
+  }
+
+  function initAmbientFx(canvas) {
+    const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
+    if (!ctx) return;
+
+    let w = 1;
+    let h = 1;
+    let dpr = 1;
+    let raf = 0;
+    let t = 0;
+
+    const pointer = { x: 0, y: 0, has: false };
+    let pts = [];
+
+    function clamp(v, a, b) {
+      return Math.max(a, Math.min(b, v));
+    }
+
+    function seed() {
+      const target = clamp(Math.floor((w * h) / 24000), 46, 120);
+      pts = Array.from({ length: target }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: (Math.random() - 0.5) * 0.22,
+        p: 0.25 + Math.random() * 0.85,
+      }));
+    }
+
+    function resize() {
+      w = Math.max(1, window.innerWidth || 1);
+      h = Math.max(1, window.innerHeight || 1);
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      seed();
+    }
+
+    function draw() {
+      raf = window.requestAnimationFrame(draw);
+      t += 0.016;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Low-contrast base haze for depth.
+      ctx.globalCompositeOperation = "source-over";
+      const grad = ctx.createRadialGradient(
+        w * (0.55 + 0.06 * Math.sin(t * 0.7)),
+        h * (0.35 + 0.06 * Math.cos(t * 0.6)),
+        40,
+        w * 0.5,
+        h * 0.5,
+        Math.max(w, h) * 0.7
+      );
+      grad.addColorStop(0, "rgba(225,26,39,0.055)");
+      grad.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Update points.
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        p.x += p.vx + Math.sin(t * 0.9 + p.p * 10) * 0.06;
+        p.y += p.vy + Math.cos(t * 0.8 + p.p * 12) * 0.06;
+
+        if (p.x < -40) p.x = w + 40;
+        if (p.x > w + 40) p.x = -40;
+        if (p.y < -40) p.y = h + 40;
+        if (p.y > h + 40) p.y = -40;
+      }
+
+      // Connections.
+      const link = clamp(Math.min(w, h) * 0.18, 110, 170);
+      const link2 = link * link;
+      const pr = pointer.has ? link * 1.35 : 0;
+      const pr2 = pr * pr;
+
+      ctx.lineWidth = 1;
+      ctx.lineCap = "round";
+
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i];
+        for (let j = i + 1; j < pts.length; j++) {
+          const b = pts[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > link2) continue;
+
+          const d = Math.sqrt(d2) || 1;
+          const base = (1 - d / link) * 0.12;
+
+          // Mouse proximity boosts brightness + shifts towards brand red.
+          let boost = 0;
+          if (pointer.has) {
+            const adx = a.x - pointer.x;
+            const ady = a.y - pointer.y;
+            const bd2 = adx * adx + ady * ady;
+            if (bd2 < pr2) boost = (1 - Math.sqrt(bd2) / pr) * 0.22;
+          }
+
+          const alpha = Math.min(0.22, base + boost);
+          ctx.strokeStyle = boost > 0.02 ? `rgba(225,26,39,${alpha})` : `rgba(0,0,0,${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+
+      // Nodes.
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        let glow = 0.08;
+        if (pointer.has) {
+          const dx = p.x - pointer.x;
+          const dy = p.y - pointer.y;
+          const d = Math.sqrt(dx * dx + dy * dy) || 1;
+          glow += Math.max(0, 1 - d / (link * 1.15)) * 0.22;
+        }
+
+        ctx.fillStyle = `rgba(225,26,39,${Math.min(0.26, glow)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(0,0,0,${Math.min(0.14, glow * 0.75)})`;
+        ctx.beginPath();
+        ctx.arc(p.x + 0.2, p.y + 0.2, 0.95, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Occasional scanning sweep.
+      const sx = (t * 42) % (w + 220) - 220;
+      ctx.globalCompositeOperation = "lighter";
+      const sweep = ctx.createLinearGradient(sx, 0, sx + 220, 0);
+      sweep.addColorStop(0, "rgba(0,0,0,0)");
+      sweep.addColorStop(0.5, "rgba(225,26,39,0.06)");
+      sweep.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = sweep;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    function onMove(e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.has = true;
+    }
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("resize", resize);
+    resize();
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        window.cancelAnimationFrame(raf);
+        raf = 0;
+      } else if (!raf) {
+        draw();
+      }
+    });
+
+    draw();
   }
 
   function initHeroFx(canvas) {
