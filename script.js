@@ -254,8 +254,8 @@
   }
 
   // Pointer-reactive 3D tilt + glare for cards.
-  if (!prefersReducedMotion) {
-    initTiltCards();
+  if (!prefersReducedMotion && perf.tier !== "low") {
+    runWhenIdle(() => initTiltCards(), 900);
   }
 
   // Magnetic micro-motion on interactive elements (desktop only).
@@ -298,237 +298,239 @@
     });
   }
 
-  // Copy-to-clipboard helpers (works on GitHub Pages and attempts fallback for local file opens).
-  const toast = $("#toast");
-  let toastTimer = 0;
+  // Non-critical enhancements: defer to idle time so initial load stays snappy.
+  runWhenIdle(() => initNonCriticalEnhancements(), 1200);
 
-  function showToast(message) {
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add("is-visible");
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => {
-      toast.classList.remove("is-visible");
-    }, 1800);
-  }
+  function initNonCriticalEnhancements() {
+    // Toast + copy-to-clipboard helpers.
+    const toast = $("#toast");
+    let toastTimer = 0;
 
-  async function copyText(text) {
-    if (!text) return false;
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("is-visible");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => {
+        toast.classList.remove("is-visible");
+      }, 1800);
+    }
 
-    // Modern API (requires secure context in most browsers).
-    try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return true;
+    async function copyText(text) {
+      if (!text) return false;
+
+      // Modern API (requires secure context in most browsers).
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (_) {
+        // Fall through to legacy approach.
       }
-    } catch (_) {
-      // Fall through to legacy approach.
+
+      // Legacy fallback.
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (_) {
+        return false;
+      }
     }
 
-    // Legacy fallback.
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.setAttribute("readonly", "");
-      ta.style.position = "fixed";
-      ta.style.left = "-9999px";
-      ta.style.top = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-      return ok;
-    } catch (_) {
-      return false;
+    document.addEventListener("click", async (e) => {
+      const t = e.target;
+      if (!t || !t.matches) return;
+      const btn = t.closest("[data-copy]");
+      if (!btn) return;
+      const text = btn.getAttribute("data-copy") || "";
+      const ok = await copyText(text);
+      showToast(ok ? "Copied" : "Copy not supported");
+    });
+
+    // Contact form: select topics + open a prefilled mailto draft (works offline).
+    const CONTACT_EMAIL = "mukeshatnitr@gmail.com";
+    const topicPills = $$(".topic-pill");
+    const contactForm = $("#contact-form");
+
+    topicPills.forEach((btn) => {
+      btn.setAttribute("aria-pressed", "false");
+      btn.addEventListener("click", () => {
+        const isActive = btn.classList.toggle("is-active");
+        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    });
+
+    if (contactForm) {
+      contactForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const fd = new FormData(contactForm);
+        const name = String(fd.get("name") || "").trim();
+        const email = String(fd.get("email") || "").trim();
+        const company = String(fd.get("company") || "").trim();
+        const message = String(fd.get("message") || "").trim();
+
+        const topics = topicPills
+          .filter((b) => b.classList.contains("is-active"))
+          .map((b) => String(b.getAttribute("data-topic") || b.textContent || "").trim())
+          .filter(Boolean);
+
+        const subject = topics.length ? `Portfolio: ${topics.join(", ")}` : "Portfolio inquiry";
+        const bodyLines = [
+          `Name: ${name || "-"}`,
+          `Email: ${email || "-"}`,
+          `Company: ${company || "-"}`,
+          `Topics: ${topics.length ? topics.join(", ") : "-"}`,
+          "",
+          message || "",
+        ];
+
+        const mailto =
+          `mailto:${CONTACT_EMAIL}` +
+          `?subject=${encodeURIComponent(subject)}` +
+          `&body=${encodeURIComponent(bodyLines.join("\\n"))}`;
+
+        showToast("Opening email client...");
+        window.location.href = mailto;
+      });
     }
-  }
 
-  document.addEventListener("click", async (e) => {
-    const t = e.target;
-    if (!t || !t.matches) return;
-    const btn = t.closest("[data-copy]");
-    if (!btn) return;
-    const text = btn.getAttribute("data-copy") || "";
-    const ok = await copyText(text);
-    showToast(ok ? "Copied" : "Copy not supported");
-  });
+    // Scroll-reveal (staggered).
+    const revealSelector =
+      ".hero-copy, .hero-panel, .offering-head, .offering-rail, .offering-card, .timeline-card, .filters, .project-card, .snapshot-copy, .snapshot-art, .stat, .about-body, .resume-card, .field, .topic-pill, .send-button, .section-title";
+    const revealEls = $$(revealSelector).filter((el) => el && el.classList);
 
-  // Contact form: select topics + open a prefilled mailto draft (works offline).
-  const CONTACT_EMAIL = "mukeshatnitr@gmail.com";
-  const topicPills = $$(".topic-pill");
-  const contactForm = $("#contact-form");
+    if (!prefersReducedMotion) {
+      // Add base class and per-element delay.
+      revealEls.forEach((el, i) => {
+        el.classList.add("reveal");
+        const d = Math.min(7, i % 8) * 70; // loops per "row" so it doesn't grow forever
+        el.style.setProperty("--d", `${d}ms`);
+      });
 
-  topicPills.forEach((btn) => {
-    btn.setAttribute("aria-pressed", "false");
-    btn.addEventListener("click", () => {
-      const isActive = btn.classList.toggle("is-active");
-      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
-    });
-  });
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
+      );
 
-  if (contactForm) {
-    contactForm.addEventListener("submit", (e) => {
-      e.preventDefault();
+      revealEls.forEach((el) => io.observe(el));
+    }
 
-      const fd = new FormData(contactForm);
-      const name = String(fd.get("name") || "").trim();
-      const email = String(fd.get("email") || "").trim();
-      const company = String(fd.get("company") || "").trim();
-      const message = String(fd.get("message") || "").trim();
+    // Active nav link highlighting + smooth nav indicator.
+    const navAnchors = $$(".nav-links a.nav-link");
+    const projectsNav = megaToggle;
+    const sections = navAnchors
+      .map((a) => {
+        const href = a.getAttribute("href") || "";
+        if (!href.startsWith("#")) return null;
+        const id = href.slice(1);
+        const el = document.getElementById(id);
+        return el ? { id, el } : null;
+      })
+      .filter(Boolean);
 
-      const topics = topicPills
-        .filter((b) => b.classList.contains("is-active"))
-        .map((b) => String(b.getAttribute("data-topic") || b.textContent || "").trim())
-        .filter(Boolean);
+    if (projectsNav) {
+      const projectsSection = document.getElementById("projects");
+      if (projectsSection) sections.push({ id: "projects", el: projectsSection });
+    }
 
-      const subject = topics.length ? `Portfolio: ${topics.join(", ")}` : "Portfolio inquiry";
-      const bodyLines = [
-        `Name: ${name || "-"}`,
-        `Email: ${email || "-"}`,
-        `Company: ${company || "-"}`,
-        `Topics: ${topics.length ? topics.join(", ") : "-"}`,
-        "",
-        message || "",
-      ];
+    const navIndicator = $("#nav-indicator");
+    let activeNavEl = null;
+    let hoverNavEl = null;
 
-      const mailto =
-        `mailto:${CONTACT_EMAIL}` +
-        `?subject=${encodeURIComponent(subject)}` +
-        `&body=${encodeURIComponent(bodyLines.join("\\n"))}`;
+    function canUseNavIndicator() {
+      return !!(navIndicator && navLinks && window.innerWidth > 980);
+    }
 
-      showToast("Opening email client...");
-      window.location.href = mailto;
-    });
-  }
+    function moveNavIndicator(el) {
+      if (!canUseNavIndicator() || !el) {
+        if (navIndicator) navIndicator.classList.remove("is-visible");
+        return;
+      }
 
-  // Scroll-reveal (staggered).
-  const revealSelector =
-    ".hero-copy, .hero-panel, .offering-head, .offering-rail, .offering-card, .timeline-card, .filters, .project-card, .snapshot-copy, .snapshot-art, .stat, .about-body, .resume-card, .field, .topic-pill, .send-button, .section-title";
-  const revealEls = $$(revealSelector).filter((el) => el && el.classList);
+      const pr = navLinks.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      const x = Math.round(r.left - pr.left);
+      const w = Math.max(0, Math.round(r.width));
 
-  if (!prefersReducedMotion) {
-    // Add base class and per-element delay.
-    revealEls.forEach((el, i) => {
-      el.classList.add("reveal");
-      const d = Math.min(7, i % 8) * 70; // loops per "row" so it doesn't grow forever
-      el.style.setProperty("--d", `${d}ms`);
-    });
+      navIndicator.style.width = `${w}px`;
+      navIndicator.style.transform = `translateX(${x}px)`;
+      navIndicator.classList.add("is-visible");
+    }
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            io.unobserve(entry.target);
-          }
+    function syncNavIndicator() {
+      moveNavIndicator(hoverNavEl || activeNavEl || navAnchors[0]);
+    }
+
+    function setActiveNav(id) {
+      activeNavEl = null;
+      navAnchors.forEach((a) => {
+        const isActive = a.getAttribute("href") === `#${id}`;
+        a.classList.toggle("is-active", isActive);
+        if (isActive) activeNavEl = a;
+      });
+      if (projectsNav) projectsNav.classList.toggle("is-active", id === "projects");
+      if (!hoverNavEl) syncNavIndicator();
+    }
+
+    if (sections.length) {
+      const navIO = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible && visible.target && visible.target.id) setActiveNav(visible.target.id);
+        },
+        { threshold: [0.2, 0.35, 0.5], rootMargin: "-20% 0px -60% 0px" }
+      );
+
+      sections.forEach(({ el }) => navIO.observe(el));
+    }
+
+    if (navIndicator && navAnchors.length && navLinks) {
+      navAnchors.forEach((a) => {
+        a.addEventListener("pointerenter", () => {
+          hoverNavEl = a;
+          syncNavIndicator();
         });
-      },
-      { threshold: 0.14, rootMargin: "0px 0px -8% 0px" }
-    );
+        a.addEventListener("pointerleave", () => {
+          hoverNavEl = null;
+          syncNavIndicator();
+        });
+        a.addEventListener("focus", () => {
+          hoverNavEl = a;
+          syncNavIndicator();
+        });
+        a.addEventListener("blur", () => {
+          hoverNavEl = null;
+          syncNavIndicator();
+        });
+      });
 
-    revealEls.forEach((el) => io.observe(el));
-  }
+      window.addEventListener("resize", () => {
+        hoverNavEl = null;
+        syncNavIndicator();
+      });
 
-  // Active nav link highlighting.
-  const navAnchors = $$(".nav-links a.nav-link");
-  const projectsNav = megaToggle;
-  const sections = navAnchors
-    .map((a) => {
-      const href = a.getAttribute("href") || "";
-      if (!href.startsWith("#")) return null;
-      const id = href.slice(1);
-      const el = document.getElementById(id);
-      return el ? { id, el } : null;
-    })
-    .filter(Boolean);
-
-  if (projectsNav) {
-    const projectsSection = document.getElementById("projects");
-    if (projectsSection) sections.push({ id: "projects", el: projectsSection });
-  }
-
-  // Smooth nav indicator that glides under links (desktop only).
-  const navIndicator = $("#nav-indicator");
-  let activeNavEl = null;
-  let hoverNavEl = null;
-
-  function canUseNavIndicator() {
-    return !!(navIndicator && navLinks && window.innerWidth > 980);
-  }
-
-  function moveNavIndicator(el) {
-    if (!canUseNavIndicator() || !el) {
-      if (navIndicator) navIndicator.classList.remove("is-visible");
-      return;
+      window.requestAnimationFrame(() => syncNavIndicator());
     }
-
-    const pr = navLinks.getBoundingClientRect();
-    const r = el.getBoundingClientRect();
-    const x = Math.round(r.left - pr.left);
-    const w = Math.max(0, Math.round(r.width));
-
-    navIndicator.style.width = `${w}px`;
-    navIndicator.style.transform = `translateX(${x}px)`;
-    navIndicator.classList.add("is-visible");
-  }
-
-  function syncNavIndicator() {
-    moveNavIndicator(hoverNavEl || activeNavEl || navAnchors[0]);
-  }
-
-  function setActiveNav(id) {
-    activeNavEl = null;
-    navAnchors.forEach((a) => {
-      const isActive = a.getAttribute("href") === `#${id}`;
-      a.classList.toggle("is-active", isActive);
-      if (isActive) activeNavEl = a;
-    });
-    if (projectsNav) projectsNav.classList.toggle("is-active", id === "projects");
-    if (!hoverNavEl) syncNavIndicator();
-  }
-
-  if (sections.length) {
-    const navIO = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible && visible.target && visible.target.id) setActiveNav(visible.target.id);
-      },
-      { threshold: [0.2, 0.35, 0.5], rootMargin: "-20% 0px -60% 0px" }
-    );
-
-    sections.forEach(({ el }) => navIO.observe(el));
-  }
-
-  if (navIndicator && navAnchors.length && navLinks) {
-    // Hover/focus snaps the indicator to the item; leaving restores active position.
-    navAnchors.forEach((a) => {
-      a.addEventListener("pointerenter", () => {
-        hoverNavEl = a;
-        syncNavIndicator();
-      });
-      a.addEventListener("pointerleave", () => {
-        hoverNavEl = null;
-        syncNavIndicator();
-      });
-      a.addEventListener("focus", () => {
-        hoverNavEl = a;
-        syncNavIndicator();
-      });
-      a.addEventListener("blur", () => {
-        hoverNavEl = null;
-        syncNavIndicator();
-      });
-    });
-
-    window.addEventListener("resize", () => {
-      hoverNavEl = null;
-      syncNavIndicator();
-    });
-
-    // Initial position.
-    window.requestAnimationFrame(() => syncNavIndicator());
   }
 
   function initTiltCards() {
