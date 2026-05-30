@@ -47,11 +47,67 @@
         <div class="nav-links" id="nav-links">
           <a class="nav-link" href="#about">About</a>
           <a class="nav-link" href="#experience">Experience</a>
-          <a class="nav-link" href="#projects">Projects</a>
+
+          <div class="nav-mega">
+            <button
+              class="nav-link nav-mega-toggle"
+              type="button"
+              aria-expanded="false"
+              aria-controls="mega-projects"
+              aria-label="Toggle projects menu"
+            >
+              Projects
+              <span class="chev" aria-hidden="true"></span>
+            </button>
+            <div class="mega-panel" id="mega-projects" role="region" aria-label="Projects menu" hidden>
+              <div class="mega-grid">
+                <a class="mega-item" href="#projects" data-mega-filter="all">
+                  <span class="mega-icon" aria-hidden="true"></span>
+                  <span class="mega-body">
+                    <span class="mega-title">All</span>
+                    <span class="mega-desc">
+                      Selected professional and academic projects. Use filters to focus on your role needs.
+                    </span>
+                  </span>
+                </a>
+                <a class="mega-item" href="#projects" data-mega-filter="robotics">
+                  <span class="mega-icon" aria-hidden="true"></span>
+                  <span class="mega-body">
+                    <span class="mega-title">Robotics</span>
+                    <span class="mega-desc">ASRS Robot Mechatronics + Field RCA</span>
+                  </span>
+                </a>
+                <a class="mega-item" href="#projects" data-mega-filter="ev-automotive">
+                  <span class="mega-icon" aria-hidden="true"></span>
+                  <span class="mega-body">
+                    <span class="mega-title">EV / Automotive</span>
+                    <span class="mega-desc">Cooling Control Unit ECU Ownership (Spec - SOP)</span>
+                  </span>
+                </a>
+                <a class="mega-item" href="#projects" data-mega-filter="embedded">
+                  <span class="mega-icon" aria-hidden="true"></span>
+                  <span class="mega-body">
+                    <span class="mega-title">Embedded / Controls</span>
+                    <span class="mega-desc">Automatic Launch Control System</span>
+                  </span>
+                </a>
+                <a class="mega-item" href="#projects" data-mega-filter="data">
+                  <span class="mega-icon" aria-hidden="true"></span>
+                  <span class="mega-body">
+                    <span class="mega-title">Data / Tooling</span>
+                    <span class="mega-desc">e-Citaro Field Data Analytics + CAN Signal Visualization</span>
+                  </span>
+                </a>
+              </div>
+            </div>
+          </div>
+
           <a class="nav-link" href="#skills">Skills</a>
           <a class="nav-link" href="#education">Education</a>
           <a class="nav-link" href="#resume">Resume</a>
           <a class="nav-link" href="#contact">Contact</a>
+
+          <a class="nav-cta" href="resume.pdf" download>Download Resume</a>
         </div>
       </nav>
     </header>
@@ -87,34 +143,127 @@
           </div>
 
           <div class="hero-panel" aria-label="Quick highlights">
-            <div class="panel-card hero-photo-card" aria-label="Profile photo">
-              <img
-                class="hero-photo"
-                src="assets/profile.jpg"
-                alt="Portrait of Mukesh Sethy"
-                width="207"
-                height="266"
-                loading="eager"
-                decoding="async"
-              />
+            <div class="hero-visual" aria-hidden="true">
+              <svg class="hero-illus" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#0077c8" stop-opacity="0.22" />
+                    <stop offset="0.5" stop-color="#00a7c4" stop-opacity="0.18" />
+                    <stop offset="1" stop-color="#16b8a6" stop-opacity="0.16" />
+                  </linearGradient>
+                  <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#0b2b52" stop-opacity="0.06" />
+                    <stop offset="1" stop-color="#0b2b52" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Frame -->
+                <rect x="22" y="18" width="516" height="384" rx="28" fill="url(#g1)" stroke="rgba(15, 23, 42, 0.08)" />
+                <rect x="40" y="36" width="480" height="348" rx="24" fill="rgba(255,255,255,0.88)" />
+
+                <!-- Warehouse floor grid -->
+                <g opacity="0.55" stroke="rgba(15, 23, 42, 0.08)" stroke-width="1">
+                  <path d="M70 310 H490" />
+                  <path d="M70 336 H490" />
+                  <path d="M70 362 H490" />
+                  <path d="M98 288 V392" />
+                  <path d="M132 288 V392" />
+                  <path d="M166 288 V392" />
+                  <path d="M200 288 V392" />
+                  <path d="M234 288 V392" />
+                  <path d="M268 288 V392" />
+                  <path d="M302 288 V392" />
+                  <path d="M336 288 V392" />
+                  <path d="M370 288 V392" />
+                  <path d="M404 288 V392" />
+                  <path d="M438 288 V392" />
+                  <path d="M472 288 V392" />
+                </g>
+
+                <!-- Route lines -->
+                <path
+                  d="M112 340 C172 300, 232 360, 292 320 S412 288, 458 330"
+                  fill="none"
+                  stroke="#0077c8"
+                  stroke-opacity="0.55"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M118 312 C196 286, 256 320, 316 296 S418 300, 482 278"
+                  fill="none"
+                  stroke="#00a7c4"
+                  stroke-opacity="0.5"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+
+                <!-- Nodes -->
+                <g class="node">
+                  <circle cx="112" cy="340" r="6" fill="#0077c8" />
+                  <circle cx="292" cy="320" r="6" fill="#0077c8" />
+                  <circle cx="458" cy="330" r="6" fill="#0077c8" />
+                </g>
+                <g class="node node--alt">
+                  <circle cx="118" cy="312" r="6" fill="#00a7c4" />
+                  <circle cx="316" cy="296" r="6" fill="#00a7c4" />
+                  <circle cx="482" cy="278" r="6" fill="#00a7c4" />
+                </g>
+
+                <!-- AMR-like blocks -->
+                <g fill="#ffffff" stroke="rgba(15, 23, 42, 0.12)" stroke-width="1.2">
+                  <rect x="146" y="318" width="34" height="22" rx="8" />
+                  <rect x="250" y="334" width="34" height="22" rx="8" />
+                  <rect x="382" y="308" width="34" height="22" rx="8" />
+                </g>
+
+                <!-- Floating UI cards -->
+                <g>
+                  <rect x="78" y="78" width="170" height="72" rx="16" fill="#ffffff" stroke="rgba(15, 23, 42, 0.08)" />
+                  <rect x="94" y="100" width="94" height="8" rx="999" fill="rgba(0, 119, 200, 0.25)" />
+                  <rect x="94" y="118" width="126" height="8" rx="999" fill="rgba(15, 23, 42, 0.12)" />
+
+                  <rect x="314" y="70" width="188" height="86" rx="18" fill="#ffffff" stroke="rgba(15, 23, 42, 0.08)" />
+                  <rect x="332" y="96" width="132" height="8" rx="999" fill="rgba(0, 167, 196, 0.26)" />
+                  <rect x="332" y="114" width="150" height="8" rx="999" fill="rgba(15, 23, 42, 0.12)" />
+                  <rect x="332" y="132" width="118" height="8" rx="999" fill="rgba(15, 23, 42, 0.12)" />
+                </g>
+
+                <!-- Subtle vignette -->
+                <rect x="40" y="36" width="480" height="348" rx="24" fill="url(#g2)" />
+              </svg>
             </div>
-            <div class="panel-card">
-              <h2 class="panel-title">Focus areas</h2>
-              <ul class="clean-list">
-                <li>ECU lifecycle: spec to SOP</li>
-                <li>Thermal systems + EV validation benches</li>
-                <li>Field data analytics + signal visualization</li>
-                <li>Robotics mechatronics + site issue RCA</li>
-              </ul>
-            </div>
-            <div class="panel-card">
-              <h2 class="panel-title">Current</h2>
-              <p class="muted">
-                Electrical Engineer at Rapyuta Robotics (Chennai) working on core mechatronics
-                development for ASRS robots.
-              </p>
-              <div class="signal" aria-hidden="true">
-                <span></span><span></span><span></span><span></span>
+
+            <div class="hero-float-cards">
+              <div class="panel-card hero-photo-card" aria-label="Profile photo">
+                <img
+                  class="hero-photo"
+                  src="assets/profile.jpg"
+                  alt="Portrait of Mukesh Sethy"
+                  width="207"
+                  height="266"
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+              <div class="panel-card">
+                <h2 class="panel-title">Focus areas</h2>
+                <ul class="clean-list">
+                  <li>ECU lifecycle: spec to SOP</li>
+                  <li>Thermal systems + EV validation benches</li>
+                  <li>Field data analytics + signal visualization</li>
+                  <li>Robotics mechatronics + site issue RCA</li>
+                </ul>
+              </div>
+              <div class="panel-card">
+                <h2 class="panel-title">Current</h2>
+                <p class="muted">
+                  Electrical Engineer at Rapyuta Robotics (Chennai) working on core mechatronics
+                  development for ASRS robots.
+                </p>
+                <div class="signal" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span>
+                </div>
               </div>
             </div>
           </div>
@@ -495,15 +644,6 @@
               </button>
             </div>
             <div class="contact-card">
-              <h3 class="card-title">Phone</h3>
-              <p class="muted">
-                <a class="link" href="tel:+919658758780">+91 9658758780</a>
-              </p>
-              <button class="mini-button" type="button" data-copy="+91 9658758780" aria-label="Copy phone number">
-                Copy
-              </button>
-            </div>
-            <div class="contact-card">
               <h3 class="card-title">LinkedIn</h3>
               <p class="muted">
                 <a
@@ -516,9 +656,7 @@
                 </a>
               </p>
             </div>
-          </div>
 
-          <div class="contact-grid contact-grid-2">
             <div class="contact-card">
               <h3 class="card-title">GitHub</h3>
               <p class="muted">
@@ -527,6 +665,9 @@
                 </a>
               </p>
             </div>
+          </div>
+
+          <div class="contact-grid contact-grid-2">
             <div class="contact-card">
               <h3 class="card-title">Location</h3>
               <p class="muted">Chennai, India</p>
@@ -537,20 +678,61 @@
             </div>
           </div>
 
-          <p class="tiny muted">
-            If you prefer not to publish your phone number publicly, remove it from the Contact section in
-            <code>index.html</code>.
-          </p>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <div class="container footer-row">
-        <p class="muted">
-          &copy; <span id="year"></span> Mukesh Sethy. Built with HTML, CSS, and vanilla JavaScript.
-        </p>
-        <a class="link tiny" href="#home">Back to top</a>
+      <div class="container footer-grid">
+        <div class="footer-col footer-brand">
+          <a class="footer-logo" href="#home" aria-label="Back to home">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span class="footer-name">Mukesh Sethy</span>
+          </a>
+          <p class="footer-muted">
+            Robotics Engineer - Mechatronics, EV Systems, Embedded Controllers
+          </p>
+        </div>
+
+        <nav class="footer-col" aria-label="Footer navigation">
+          <h3 class="footer-title">Explore</h3>
+          <a class="footer-link" href="#about">About</a>
+          <a class="footer-link" href="#experience">Experience</a>
+          <a class="footer-link" href="#projects">Projects</a>
+          <a class="footer-link" href="#skills">Skills</a>
+          <a class="footer-link" href="#education">Education</a>
+        </nav>
+
+        <nav class="footer-col" aria-label="Footer projects">
+          <h3 class="footer-title">Projects</h3>
+          <a class="footer-link" href="#projects" data-mega-filter="robotics">Robotics</a>
+          <a class="footer-link" href="#projects" data-mega-filter="ev-automotive">EV / Automotive</a>
+          <a class="footer-link" href="#projects" data-mega-filter="embedded">Embedded / Controls</a>
+          <a class="footer-link" href="#projects" data-mega-filter="data">Data / Tooling</a>
+        </nav>
+
+        <div class="footer-col">
+          <h3 class="footer-title">Contact</h3>
+          <a class="footer-link" href="mailto:mukeshatnitr@gmail.com">mukeshatnitr@gmail.com</a>
+          <a
+            class="footer-link"
+            href="https://www.linkedin.com/in/mukesh-sethy-410699104"
+            target="_blank"
+            rel="noreferrer"
+          >
+            LinkedIn
+          </a>
+          <a class="footer-link" href="https://github.com/MukeshSethy" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="container footer-bottom-row">
+          <p class="footer-muted">
+            &copy; <span id="year"></span> Mukesh Sethy. Built with HTML, CSS, and vanilla JavaScript.
+          </p>
+          <a class="footer-link footer-toplink" href="#home">Back to top</a>
+        </div>
       </div>
     </footer>
 

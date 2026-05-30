@@ -7,9 +7,47 @@
   const prefersReducedMotion =
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  const header = $(".site-header");
+
   // Mobile nav menu.
   const navToggle = $(".nav-toggle");
   const navLinks = $("#nav-links");
+
+  // Mega menu (Projects).
+  const megaWrap = $(".nav-mega");
+  const megaToggle = megaWrap ? $(".nav-mega-toggle", megaWrap) : null;
+  const megaPanel = megaWrap ? $(".mega-panel", megaWrap) : null;
+  let megaHideTimer = 0;
+
+  function openMega() {
+    if (!megaWrap || !megaToggle || !megaPanel) return;
+    window.clearTimeout(megaHideTimer);
+
+    // Reveal first, then add open class on next frame so the transition runs.
+    megaPanel.hidden = false;
+    megaToggle.setAttribute("aria-expanded", "true");
+    window.requestAnimationFrame(() => megaWrap.classList.add("is-open"));
+  }
+
+  function closeMega() {
+    if (!megaWrap || !megaToggle || !megaPanel) return;
+    window.clearTimeout(megaHideTimer);
+
+    megaWrap.classList.remove("is-open");
+    megaToggle.setAttribute("aria-expanded", "false");
+
+    // Let the close transition finish before fully hiding.
+    megaHideTimer = window.setTimeout(() => {
+      if (!megaWrap.classList.contains("is-open")) megaPanel.hidden = true;
+    }, 180);
+  }
+
+  function toggleMega() {
+    if (!megaWrap || !megaToggle || !megaPanel) return;
+    const isOpen = megaWrap.classList.contains("is-open");
+    if (isOpen) closeMega();
+    else openMega();
+  }
 
   function closeMenu() {
     if (!navLinks || !navToggle) return;
@@ -17,6 +55,7 @@
     navToggle.classList.remove("is-open");
     navToggle.setAttribute("aria-expanded", "false");
     navToggle.setAttribute("aria-label", "Open menu");
+    closeMega();
   }
 
   function openMenu() {
@@ -41,13 +80,18 @@
 
     // Close menu after clicking a nav link.
     navLinks.addEventListener("click", (e) => {
-      const target = e.target;
-      if (target && target.matches && target.matches("a.nav-link")) closeMenu();
+      const t = e.target;
+      if (!t || !t.closest) return;
+      const a = t.closest("a");
+      if (a && navLinks.contains(a)) closeMenu();
     });
 
     // Escape closes the menu.
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeMenu();
+      if (e.key === "Escape") {
+        closeMenu();
+        closeMega();
+      }
     });
 
     // Click outside closes the menu.
@@ -62,6 +106,23 @@
     // If resized to desktop, ensure menu is closed.
     window.addEventListener("resize", () => {
       if (window.innerWidth > 920) closeMenu();
+      closeMega();
+    });
+  }
+
+  // Mega menu interactions.
+  if (megaToggle) {
+    megaToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      toggleMega();
+    });
+
+    // Close on outside click.
+    document.addEventListener("click", (e) => {
+      if (!megaWrap || !megaWrap.classList.contains("is-open")) return;
+      const t = e.target;
+      if (t === megaWrap || megaWrap.contains(t)) return;
+      closeMega();
     });
   }
 
@@ -86,12 +147,31 @@
     });
   }
 
+  function setFilterByValue(value) {
+    const v = (value || "all").toLowerCase();
+    const btn =
+      filterButtons.find((b) => (b.getAttribute("data-filter") || "").toLowerCase() === v) ||
+      filterButtons[0];
+    if (btn) setActiveFilter(btn);
+    applyFilter(v);
+  }
+
   filterButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const value = btn.getAttribute("data-filter") || "all";
-      setActiveFilter(btn);
-      applyFilter(value);
+      setFilterByValue(value);
     });
+  });
+
+  // Apply project filter from mega menu / footer links.
+  document.addEventListener("click", (e) => {
+    const t = e.target;
+    if (!t || !t.closest) return;
+    const a = t.closest("[data-mega-filter]");
+    if (!a) return;
+    const value = a.getAttribute("data-mega-filter") || "all";
+    if (filterButtons.length && projectCards.length) setFilterByValue(value);
+    closeMega();
   });
 
   // Footer year.
@@ -116,6 +196,7 @@
 
       if (progressBar) progressBar.style.width = `${(pct * 100).toFixed(2)}%`;
       if (toTop) toTop.classList.toggle("is-visible", scrollTop > 720);
+      if (header) header.classList.toggle("is-scrolled", scrollTop > 8);
     });
   }
 
@@ -214,6 +295,7 @@
 
   // Active nav link highlighting.
   const navAnchors = $$(".nav-links a.nav-link");
+  const projectsNav = megaToggle;
   const sections = navAnchors
     .map((a) => {
       const href = a.getAttribute("href") || "";
@@ -224,11 +306,17 @@
     })
     .filter(Boolean);
 
+  if (projectsNav) {
+    const projectsSection = document.getElementById("projects");
+    if (projectsSection) sections.push({ id: "projects", el: projectsSection });
+  }
+
   function setActiveNav(id) {
     navAnchors.forEach((a) => {
       const isActive = a.getAttribute("href") === `#${id}`;
       a.classList.toggle("is-active", isActive);
     });
+    if (projectsNav) projectsNav.classList.toggle("is-active", id === "projects");
   }
 
   if (sections.length) {
