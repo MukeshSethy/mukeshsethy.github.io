@@ -242,7 +242,7 @@
 
   // Click ripples (subtle HUD feedback).
   const clickRipples = $("#click-ripples");
-  if (clickRipples && !prefersReducedMotion) {
+  if (clickRipples && !prefersReducedMotion && perf.tier !== "low") {
     initClickRipples(clickRipples);
   }
 
