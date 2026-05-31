@@ -91,7 +91,7 @@
         return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
       }
 
-      const m = c.match(/rgba?\\(([^)]+)\\)/i);
+      const m = c.match(/rgba?\(([^)]+)\)/i);
       if (m && m[1]) {
         const nums = String(m[1]).match(/[0-9.]+/g);
         if (nums && nums.length >= 3) {
@@ -114,17 +114,17 @@
       return `rgba(${r},${g},${b},${a})`;
     }
 
-    const brand = readVar("--brand", "#3ecf8e");
-    const ink = readVar("--ink", "#171717");
-    const canvas = readVar("--canvas", "#ffffff");
+    const brand = readVar("--brand", "#00d992");
+    const ink = readVar("--ink", "#f2f2f2");
+    const canvas = readVar("--canvas", "#101010");
 
     return {
       brand,
       ink,
       canvas,
-      brandRgb: parseRgb(brand) || { r: 62, g: 207, b: 142 },
-      inkRgb: parseRgb(ink) || { r: 23, g: 23, b: 23 },
-      canvasRgb: parseRgb(canvas) || { r: 255, g: 255, b: 255 },
+      brandRgb: parseRgb(brand) || { r: 0, g: 217, b: 146 },
+      inkRgb: parseRgb(ink) || { r: 242, g: 242, b: 242 },
+      canvasRgb: parseRgb(canvas) || { r: 16, g: 16, b: 16 },
       rgba,
     };
   })();
