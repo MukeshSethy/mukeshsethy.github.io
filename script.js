@@ -656,6 +656,60 @@
       return Number.isFinite(count) ? count : 0;
     }
 
+    function parseContributionTable(doc) {
+      const table = doc.querySelector("table.ContributionCalendar-grid, .ContributionCalendar-grid");
+      if (!table) return null;
+
+      const rows = Array.from(table.querySelectorAll("tbody tr"));
+      if (!rows.length) return null;
+
+      const weeks = [];
+      rows.forEach((row) => {
+        const cells = Array.from(row.querySelectorAll("td[data-date]"));
+        cells.forEach((cell, columnIndex) => {
+          if (!weeks[columnIndex]) weeks[columnIndex] = [];
+          const date = cell.getAttribute("data-date") || "";
+          let count = Number(cell.getAttribute("data-count") || "");
+          if (!Number.isFinite(count)) {
+            count = parseCountFromTooltip(cell, doc);
+          }
+          if (!Number.isFinite(count)) {
+            const level = Number(cell.getAttribute("data-level") || "");
+            count = getContributionCountFromLevel(level);
+          }
+          weeks[columnIndex].push({ date, count });
+        });
+      });
+
+      const total = weeks.flat().reduce((sum, day) => sum + (day.count || 0), 0);
+      return { weeks, total };
+    }
+
+    function parseCountFromTooltip(cell, doc) {
+      const describedBy = cell.getAttribute("aria-describedby");
+      if (describedBy) {
+        const tooltip = doc.getElementById(describedBy);
+        if (tooltip) {
+          const text = String(tooltip.textContent || "").trim();
+          const match = text.match(/(\d+) contribution/);
+          if (match) return Number(match[1]);
+          if (/No contributions/i.test(text)) return 0;
+        }
+      }
+      const label = cell.getAttribute("aria-label") || "";
+      const match = label.match(/(\d+) contribution/);
+      if (match) return Number(match[1]);
+      return NaN;
+    }
+
+    function getContributionCountFromLevel(level) {
+      if (level >= 4) return 16;
+      if (level === 3) return 9;
+      if (level === 2) return 4;
+      if (level === 1) return 1;
+      return 0;
+    }
+
     function parseContributionSvg(svgText) {
       const parser = new DOMParser();
       const doc = parser.parseFromString(svgText, "image/svg+xml");
@@ -681,14 +735,24 @@
       return { weeks, total };
     }
 
+    function parseContributionContent(text) {
+      const htmlParser = new DOMParser();
+      const doc = htmlParser.parseFromString(text, "text/html");
+      const tableResult = parseContributionTable(doc);
+      if (tableResult) return tableResult;
+      return parseContributionSvg(text);
+    }
+
     async function loadGitHubContributions() {
       if (!GITHUB_CALENDAR) return;
       const loading = $("#calendar-loading");
       if (loading) loading.textContent = "Loading contributions…";
 
+      const allOriginsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`)}`;
       const sources = [
+        allOriginsUrl,
+        `https://r.jina.ai/http://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
         `https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
-        `https://api.allorigins.win/raw?url=https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
         `https://github-contributions-api.deno.dev/v1/${GITHUB_CONTRIB_USER}`,
       ];
 
@@ -712,7 +776,7 @@
           }
 
           const html = await fetchContributionHtml(source);
-          const parsed = parseContributionSvg(html);
+          const parsed = parseContributionContent(html);
           if (parsed && parsed.weeks.length) {
             renderGitHubCalendar(parsed.weeks, parsed.total);
             return;
