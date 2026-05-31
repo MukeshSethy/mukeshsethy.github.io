@@ -529,6 +529,227 @@
       }
     }
 
+    const GITHUB_CONTRIB_USER = "MukeshSethy";
+    const GITHUB_CALENDAR = $("#calendar-grid");
+    const GITHUB_MONTHS = $("#calendar-months");
+    const GITHUB_TOOLTIP = $("#calendar-tooltip");
+    const GITHUB_TOTAL = $("#github-contrib-total");
+
+    function formatContributionLabel(count, date) {
+      const dt = new Date(date);
+      const formatted = dt.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+      return count === 0
+        ? `No contributions on ${formatted}`
+        : `${count} contribution${count === 1 ? "" : "s"} on ${formatted}`;
+    }
+
+    function getContributionLevel(count) {
+      if (count >= 16) return 4;
+      if (count >= 9) return 3;
+      if (count >= 4) return 2;
+      if (count >= 1) return 1;
+      return 0;
+    }
+
+    function positionTooltip(target) {
+      if (!GITHUB_TOOLTIP || !target) return;
+      const rect = target.getBoundingClientRect();
+      const tooltipWidth = Math.min(260, window.innerWidth - 24);
+      const x = Math.max(12, Math.min(window.innerWidth - tooltipWidth - 12, rect.left + rect.width / 2 - tooltipWidth / 2));
+      const y = rect.top - GITHUB_TOOLTIP.offsetHeight - 12;
+      GITHUB_TOOLTIP.style.left = `${x}px`;
+      GITHUB_TOOLTIP.style.top = `${Math.max(12, y)}px`;
+    }
+
+    function showContributionTooltip(day, target) {
+      if (!GITHUB_TOOLTIP || !day) return;
+      GITHUB_TOOLTIP.textContent = formatContributionLabel(day.count, day.date);
+      GITHUB_TOOLTIP.setAttribute("aria-hidden", "false");
+      GITHUB_TOOLTIP.style.opacity = "1";
+      positionTooltip(target);
+    }
+
+    function hideContributionTooltip() {
+      if (!GITHUB_TOOLTIP) return;
+      GITHUB_TOOLTIP.setAttribute("aria-hidden", "true");
+      GITHUB_TOOLTIP.style.opacity = "0";
+    }
+
+    function renderGitHubCalendar(weeks, total) {
+      if (!GITHUB_CALENDAR || !GITHUB_MONTHS) return;
+      GITHUB_CALENDAR.innerHTML = "";
+      GITHUB_MONTHS.innerHTML = "";
+
+      const monthMarkers = [];
+      weeks.forEach((week, weekIndex) => {
+        if (!Array.isArray(week)) return;
+        week.forEach((day, dayIndex) => {
+          if (dayIndex === 0) {
+            const month = new Date(day.date).toLocaleDateString("en-US", { month: "short" });
+            if (!monthMarkers.length || monthMarkers[monthMarkers.length - 1].label !== month) {
+              monthMarkers.push({ label: month, index: weekIndex });
+            }
+          }
+        });
+
+        const col = document.createElement("div");
+        col.className = "calendar-week";
+
+        week.forEach((day) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `calendar-day level-${getContributionLevel(day.count)}`;
+          button.dataset.date = day.date;
+          button.dataset.count = String(day.count);
+          button.setAttribute("aria-label", formatContributionLabel(day.count, day.date));
+          button.addEventListener("mouseenter", () => showContributionTooltip(day, button));
+          button.addEventListener("focus", () => showContributionTooltip(day, button));
+          button.addEventListener("mouseleave", hideContributionTooltip);
+          button.addEventListener("blur", hideContributionTooltip);
+          col.appendChild(button);
+        });
+
+        GITHUB_CALENDAR.appendChild(col);
+      });
+
+      monthMarkers.forEach((marker) => {
+        const label = document.createElement("span");
+        label.className = "calendar-month";
+        label.textContent = marker.label;
+        label.style.left = `${(marker.index / Math.max(1, weeks.length - 1)) * 100}%`;
+        GITHUB_MONTHS.appendChild(label);
+      });
+
+      if (GITHUB_TOTAL) {
+        GITHUB_TOTAL.textContent = `${total} contributions in the last year`;
+      }
+
+      const loadingElement = $("#calendar-loading");
+      if (loadingElement) loadingElement.style.display = "none";
+    }
+
+    async function fetchContributionHtml(url) {
+      const response = await fetch(url, { mode: "cors" });
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+      return response.text();
+    }
+
+    function getContributionCount(rect) {
+      const countAttr = rect.getAttribute("data-count") || rect.dataset.count || rect.getAttribute("data-level") || rect.dataset.level;
+      let count = Number(countAttr);
+      if (!Number.isFinite(count)) {
+        const label = rect.getAttribute("aria-label") || "";
+        const match = String(label).match(/(\d+) contribution/);
+        if (match) {
+          count = Number(match[1]);
+        } else {
+          const level = Number(rect.getAttribute("data-level") || rect.dataset.level || "");
+          if (Number.isFinite(level)) {
+            count = [0, 1, 4, 9, 16][Math.max(0, Math.min(4, level))];
+          }
+        }
+      }
+      return Number.isFinite(count) ? count : 0;
+    }
+
+    function parseContributionSvg(svgText) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, "image/svg+xml");
+      const svg = doc.querySelector("svg");
+      if (!svg) return null;
+
+      let weekGroups = Array.from(svg.querySelectorAll("g > g")).filter((group) => group.querySelector("rect"));
+      if (!weekGroups.length) {
+        weekGroups = Array.from(svg.querySelectorAll("g")).filter((group) => group.querySelector("rect"));
+      }
+      if (!weekGroups.length) return null;
+
+      const weeks = weekGroups.map((group) => {
+        const rects = Array.from(group.querySelectorAll("rect"));
+        rects.sort((a, b) => Number(a.getAttribute("y") || 0) - Number(b.getAttribute("y") || 0));
+        return rects.map((rect) => ({
+          date: rect.getAttribute("data-date") || rect.dataset.date || "",
+          count: getContributionCount(rect),
+        }));
+      });
+
+      const total = weeks.flat().reduce((sum, day) => sum + (day.count || 0), 0);
+      return { weeks, total };
+    }
+
+    async function loadGitHubContributions() {
+      if (!GITHUB_CALENDAR) return;
+      const loading = $("#calendar-loading");
+      if (loading) loading.textContent = "Loading contributions…";
+
+      const sources = [
+        `https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
+        `https://api.allorigins.win/raw?url=https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
+        `https://github-contributions-api.deno.dev/v1/${GITHUB_CONTRIB_USER}`,
+      ];
+
+      for (const source of sources) {
+        try {
+          if (source.includes("github-contributions-api")) {
+            const response = await fetch(source);
+            if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+            const json = await response.json();
+            const year = Array.isArray(json.years) && json.years[0];
+            if (year && Array.isArray(year.weeks)) {
+              const weeks = year.weeks.map((week) =>
+                Array.isArray(week.contributionDays)
+                  ? week.contributionDays.map((day) => ({ date: day.date, count: Number(day.count || 0) }))
+                  : []
+              );
+              renderGitHubCalendar(weeks, Number(year.total || 0));
+              return;
+            }
+            continue;
+          }
+
+          const html = await fetchContributionHtml(source);
+          const parsed = parseContributionSvg(html);
+          if (parsed && parsed.weeks.length) {
+            renderGitHubCalendar(parsed.weeks, parsed.total);
+            return;
+          }
+        } catch (error) {
+          console.warn("GitHub calendar source failed:", source, error);
+        }
+      }
+
+      if (loading) loading.textContent = "Unable to load live data. Showing sample activity.";
+      const sample = generateSampleContributionWeeks();
+      renderGitHubCalendar(sample.weeks, sample.total);
+    }
+
+    function generateSampleContributionWeeks() {
+      const weeks = [];
+      const now = new Date();
+      const startDate = new Date(now);
+      startDate.setDate(now.getDate() - 364);
+      let current = new Date(startDate);
+      let week = [];
+
+      while (current <= now) {
+        week.push({ date: current.toISOString().slice(0, 10), count: Math.floor(Math.random() * 9) });
+        if (current.getDay() === 6 || current >= now) {
+          weeks.push(week);
+          week = [];
+        }
+        current.setDate(current.getDate() + 1);
+      }
+
+      const total = weeks.flat().reduce((sum, day) => sum + day.count, 0);
+      return { weeks, total };
+    }
+
+    loadGitHubContributions();
+
     document.addEventListener("click", async (e) => {
       const t = e.target;
       if (!t || !t.matches) return;
