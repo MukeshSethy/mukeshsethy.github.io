@@ -827,7 +827,6 @@ body.modal-open {
   display: grid;
 }
 
-.hero-panel::before,
 .hero-panel::after {
   position: absolute;
   z-index: 3;
@@ -840,14 +839,6 @@ body.modal-open {
   line-height: 1.5;
   box-shadow: var(--shadow-soft);
   pointer-events: none;
-}
-
-.hero-panel::before {
-  content: "$ init autonomy-stack\A> can.bus online\A> validation ready";
-  right: -14px;
-  top: 54px;
-  padding: 14px 16px;
-  white-space: pre;
 }
 
 .hero-panel::after {
@@ -1857,7 +1848,6 @@ body.modal-open {
     font-size: 48px;
   }
 
-  .hero-panel::before,
   .hero-panel::after {
     display: none;
   }
