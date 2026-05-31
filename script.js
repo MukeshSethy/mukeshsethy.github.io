@@ -560,14 +560,21 @@
       const rect = target.getBoundingClientRect();
       const tooltipWidth = Math.min(260, window.innerWidth - 24);
       const x = Math.max(12, Math.min(window.innerWidth - tooltipWidth - 12, rect.left + rect.width / 2 - tooltipWidth / 2));
-      const y = rect.top - GITHUB_TOOLTIP.offsetHeight - 12;
+      let y = rect.top - GITHUB_TOOLTIP.offsetHeight - 12;
+      // If positioning above would place the tooltip off-screen, place it below the target.
+      if (y < 12) {
+        y = rect.bottom + 12;
+      }
       GITHUB_TOOLTIP.style.left = `${x}px`;
       GITHUB_TOOLTIP.style.top = `${Math.max(12, y)}px`;
+      // Reset transform so the CSS transition doesn't leave it translated.
+      GITHUB_TOOLTIP.style.transform = "none";
     }
 
     function showContributionTooltip(day, target) {
       if (!GITHUB_TOOLTIP || !day) return;
-      GITHUB_TOOLTIP.textContent = formatContributionLabel(day.count, day.date);
+      const text = day && day.label ? day.label : formatContributionLabel(day.count, day.date);
+      GITHUB_TOOLTIP.textContent = text;
       GITHUB_TOOLTIP.setAttribute("aria-hidden", "false");
       GITHUB_TOOLTIP.style.opacity = "1";
       positionTooltip(target);
@@ -599,13 +606,26 @@
         const col = document.createElement("div");
         col.className = "calendar-week";
 
-        week.forEach((day) => {
+        week.forEach((day, dayIndex) => {
           const button = document.createElement("button");
           button.type = "button";
           button.className = `calendar-day level-${getContributionLevel(day.count)}`;
           button.dataset.date = day.date;
           button.dataset.count = String(day.count);
-          button.setAttribute("aria-label", formatContributionLabel(day.count, day.date));
+          button.setAttribute("role", "gridcell");
+          button.setAttribute("aria-rowindex", String(dayIndex + 1));
+          button.setAttribute("aria-colindex", String(weekIndex + 1));
+          // Prefer the parsed GitHub tooltip text for accessibility and hover details.
+          if (day && day.label) {
+            button.setAttribute("aria-label", day.label);
+            button.dataset.rawLabel = day.label;
+            // Also set native title so the browser shows a tooltip if our custom tooltip doesn't appear.
+            button.title = day.label;
+          } else {
+            const lbl = formatContributionLabel(day.count, day.date);
+            button.setAttribute("aria-label", lbl);
+            button.title = lbl;
+          }
           button.addEventListener("mouseenter", () => showContributionTooltip(day, button));
           button.addEventListener("focus", () => showContributionTooltip(day, button));
           button.addEventListener("mouseleave", hideContributionTooltip);
@@ -639,8 +659,8 @@
     }
 
     function getContributionCount(rect) {
-      const countAttr = rect.getAttribute("data-count") || rect.dataset.count || rect.getAttribute("data-level") || rect.dataset.level;
-      let count = Number(countAttr);
+      const countAttr = rect.getAttribute("data-count");
+      let count = Number.isFinite(Number(countAttr)) ? Number(countAttr) : NaN;
       if (!Number.isFinite(count)) {
         const label = rect.getAttribute("aria-label") || "";
         const match = String(label).match(/(\d+) contribution/);
@@ -669,7 +689,23 @@
         cells.forEach((cell, columnIndex) => {
           if (!weeks[columnIndex]) weeks[columnIndex] = [];
           const date = cell.getAttribute("data-date") || "";
-          let count = Number(cell.getAttribute("data-count") || "");
+          const countAttr = cell.getAttribute("data-count");
+          let count = countAttr !== null && countAttr !== "" ? Number(countAttr) : NaN;
+          const rawLabel = (function () {
+            const describedBy = cell.getAttribute("aria-describedby");
+            if (describedBy) {
+              const tooltip = doc.getElementById(describedBy);
+              if (tooltip) return String(tooltip.textContent || "").trim();
+            }
+            const cellId = cell.getAttribute("id");
+            if (cellId) {
+              const tooltip = doc.querySelector(`tool-tip[for=\"${cellId}\"]`);
+              if (tooltip) return String(tooltip.textContent || "").trim();
+            }
+            const lbl = cell.getAttribute("aria-label") || "";
+            return lbl.trim() || null;
+          })();
+
           if (!Number.isFinite(count)) {
             count = parseCountFromTooltip(cell, doc);
           }
@@ -677,7 +713,7 @@
             const level = Number(cell.getAttribute("data-level") || "");
             count = getContributionCountFromLevel(level);
           }
-          weeks[columnIndex].push({ date, count });
+          weeks[columnIndex].push({ date, count, label: rawLabel });
         });
       });
 
@@ -689,6 +725,16 @@
       const describedBy = cell.getAttribute("aria-describedby");
       if (describedBy) {
         const tooltip = doc.getElementById(describedBy);
+        if (tooltip) {
+          const text = String(tooltip.textContent || "").trim();
+          const match = text.match(/(\d+) contribution/);
+          if (match) return Number(match[1]);
+          if (/No contributions/i.test(text)) return 0;
+        }
+      }
+      const cellId = cell.getAttribute("id");
+      if (cellId) {
+        const tooltip = doc.querySelector(`tool-tip[for=\"${cellId}\"]`);
         if (tooltip) {
           const text = String(tooltip.textContent || "").trim();
           const match = text.match(/(\d+) contribution/);
@@ -728,6 +774,7 @@
         return rects.map((rect) => ({
           date: rect.getAttribute("data-date") || rect.dataset.date || "",
           count: getContributionCount(rect),
+          label: rect.getAttribute("aria-label") || rect.getAttribute("title") || "",
         }));
       });
 
@@ -749,16 +796,26 @@
       if (loading) loading.textContent = "Loading contributions…";
 
       const allOriginsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`)}`;
+      const codetabs = `https://api.codetabs.com/v1/proxy?quest=https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`;
       const sources = [
+        // Known-working proxy first (improves reliability in browsers).
+        codetabs,
         allOriginsUrl,
         `https://r.jina.ai/http://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
         `https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
         `https://github-contributions-api.deno.dev/v1/${GITHUB_CONTRIB_USER}`,
       ];
 
+      const debugEl = $("#calendar-debug");
+      if (debugEl) {
+        debugEl.style.display = "none";
+        debugEl.textContent = "";
+      }
+
+      const errors = [];
       for (const source of sources) {
         try {
-          if (source.includes("github-contributions-api")) {
+          if (source.includes("github-contributions-api.deno.dev")) {
             const response = await fetch(source);
             if (!response.ok) throw new Error(`Request failed: ${response.status}`);
             const json = await response.json();
@@ -778,15 +835,23 @@
           const html = await fetchContributionHtml(source);
           const parsed = parseContributionContent(html);
           if (parsed && parsed.weeks.length) {
+            // Report success to the debug panel so we can see which source worked.
+            if (debugEl) {
+              debugEl.style.display = "block";
+              debugEl.textContent = `Loaded contributions from: ${source}`;
+            }
             renderGitHubCalendar(parsed.weeks, parsed.total);
             return;
           }
         } catch (error) {
           console.warn("GitHub calendar source failed:", source, error);
+          errors.push(`${source} -> ${error && error.message ? error.message : String(error)}`);
         }
       }
-
-      if (loading) loading.textContent = "Unable to load live data. Showing sample activity.";
+      if (loading) {
+        loading.textContent = "Unable to load live data. Showing sample activity.";
+        if (errors.length) loading.textContent += ` (${errors.length} sources failed)`;
+      }
       const sample = generateSampleContributionWeeks();
       renderGitHubCalendar(sample.weeks, sample.total);
     }

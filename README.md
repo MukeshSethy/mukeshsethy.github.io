@@ -83,3 +83,30 @@ To add images later, place files under something like `assets/projects/` and ins
    - Branch: `main`
    - Folder: `/ (root)`
 
+Automated deployment (what I added):
+
+- This repo now contains a GitHub Actions workflow at `.github/workflows/deploy-pages.yml` which will deploy the repository root to GitHub Pages whenever you push to `main`.
+- I cannot push to your remote for you — to publish the site live, push these changes to a GitHub repository you control.
+
+Quick push instructions (run these in PowerShell from `d:\VSCode_Scripts\Cpp`):
+
+```powershell
+git init             # only if you haven't initialized a repo locally
+git add .
+git commit -m "Add contributions calendar and Pages deploy workflow"
+git branch -M main   # create/rename main
+git remote add origin https://github.com/<your-username>/<your-repo>.git
+git push -u origin main
+```
+
+After the push completes, open the repository on GitHub. The Actions tab will show the Pages deploy workflow; once it finishes, your site will be published at `https://<your-username>.github.io/<your-repo>/` (or the repo root if using a user/org site). If you want me to customize the workflow (e.g., deploy only the `Cpp` folder or to a `gh-pages` branch), tell me which repo path you prefer.
+
+Since this repository is a user/organization Pages site (`mukeshsethy.github.io`), once the workflow finishes your site will be available at:
+
+```
+https://mukeshsethy.github.io/
+```
+
+Notes:
+- The workflow is configured to upload the `Cpp` folder contents and publish them as the Pages site root. If you want a different folder or branch, I can update the workflow.
+

@@ -328,9 +328,23 @@
                 </div>
 
                 <div class="calendar-frame">
-                  <div class="calendar-months" id="calendar-months" aria-hidden="true"></div>
-                  <div class="calendar-grid" id="calendar-grid" role="grid" aria-label="GitHub contributions heatmap"></div>
+                  <div class="calendar-scroll">
+                    <div class="calendar-months" id="calendar-months" aria-hidden="true"></div>
+                    <div class="calendar-body">
+                      <div class="calendar-weekday-labels" aria-hidden="true">
+                        <span></span>
+                        <span>Mon</span>
+                        <span></span>
+                        <span>Wed</span>
+                        <span></span>
+                        <span>Fri</span>
+                        <span></span>
+                      </div>
+                      <div class="calendar-grid" id="calendar-grid" role="grid" aria-label="GitHub contributions heatmap"></div>
+                    </div>
+                  </div>
                   <div class="calendar-loading" id="calendar-loading">Loading contributions…</div>
+                  <div id="calendar-debug" class="calendar-debug muted tiny" style="display:none">Debug</div>
                 </div>
 
                 <div class="calendar-legend">
