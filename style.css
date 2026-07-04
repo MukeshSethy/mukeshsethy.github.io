@@ -1419,6 +1419,16 @@ body.modal-open {
   font-size: 12px;
 }
 
+.timeline-media.has-image::after {
+  content: none;
+}
+
+.timeline-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .snapshot-grid,
 .two-col {
   display: grid;
