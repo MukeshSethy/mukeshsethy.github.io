@@ -420,7 +420,9 @@
 
   // Cursor FX (desktop fine pointer only).
   const cursorFx = $("#cursor-fx");
-  if (cursorFx && !prefersReducedMotion && !perf.coarse && perf.tier !== "low") {
+  // Cursor FX is cheap — gate on a real mouse and motion preference, not perf tier
+  // (tier drops to "low" on small/zoomed windows and was hiding the cursor).
+  if (cursorFx && !prefersReducedMotion && !perf.coarse) {
     runWhenIdle(() => initCursorFx(cursorFx), 700);
   }
 
