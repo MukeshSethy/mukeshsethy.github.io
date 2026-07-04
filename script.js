@@ -729,6 +729,9 @@
     }
 
     function computeDynamicLevels(weeks) {
+      // Only fill in levels when the source didn't provide GitHub's own values.
+      const hasRealLevels = weeks.flat().some(d => d.level !== undefined);
+      if (hasRealLevels) return weeks;
       const allCounts = weeks.flat().map(d => d.count).filter(c => c > 0);
       if (!allCounts.length) return weeks;
       allCounts.sort((a, b) => a - b);
@@ -841,9 +844,20 @@
       if (loadingElement) loadingElement.style.display = "none";
     }
 
+    async function fetchWithTimeout(url, timeoutMs) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs || 8000);
+      try {
+        const response = await fetch(url, { mode: "cors", signal: controller.signal });
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        return response;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
     async function fetchContributionHtml(url) {
-      const response = await fetch(url, { mode: "cors" });
-      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+      const response = await fetchWithTimeout(url, 8000);
       return response.text();
     }
 
@@ -988,10 +1002,10 @@
       const allOriginsUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`)}`;
       const codetabs = `https://api.codetabs.com/v1/proxy?quest=https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`;
       const sources = [
-        // Known-working proxy first (improves reliability in browsers).
+        // Fast JSON API with GitHub's real counts and levels — primary source.
+        `https://github-contributions-api.jogruber.de/v4/${GITHUB_CONTRIB_USER}?y=last`,
         codetabs,
         allOriginsUrl,
-        `https://r.jina.ai/http://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
         `https://github.com/users/${GITHUB_CONTRIB_USER}/contributions`,
         `https://github-contributions-api.deno.dev/v1/${GITHUB_CONTRIB_USER}`,
       ];
@@ -1005,9 +1019,38 @@
       const errors = [];
       for (const source of sources) {
         try {
+          if (source.includes("jogruber.de")) {
+            const response = await fetchWithTimeout(source, 8000);
+            const json = await response.json();
+            if (Array.isArray(json.contributions) && json.contributions.length) {
+              const weeks = [];
+              let week = [];
+              let started = false;
+              json.contributions.forEach((day) => {
+                const isSunday = new Date(day.date + "T00:00:00").getDay() === 0;
+                // Drop leading days before the first Sunday so weekday rows align.
+                if (!started) {
+                  if (!isSunday) return;
+                  started = true;
+                }
+                if (isSunday && week.length) {
+                  weeks.push(week);
+                  week = [];
+                }
+                week.push({ date: day.date, count: Number(day.count || 0), level: Number(day.level || 0) });
+              });
+              if (week.length) weeks.push(week);
+              const total = json.total && json.total.lastYear !== undefined
+                ? Number(json.total.lastYear)
+                : weeks.flat().reduce((sum, d) => sum + d.count, 0);
+              renderGitHubCalendar(weeks, total);
+              return;
+            }
+            continue;
+          }
+
           if (source.includes("github-contributions-api.deno.dev")) {
-            const response = await fetch(source);
-            if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+            const response = await fetchWithTimeout(source, 8000);
             const json = await response.json();
             const year = Array.isArray(json.years) && json.years[0];
             if (year && Array.isArray(year.weeks)) {
@@ -1039,32 +1082,8 @@
         }
       }
       if (loading) {
-        loading.textContent = "Unable to load live data. Showing sample activity.";
-        if (errors.length) loading.textContent += ` (${errors.length} sources failed)`;
+        loading.textContent = "Unable to load live contribution data right now — view the graph directly on GitHub.";
       }
-      const sample = generateSampleContributionWeeks();
-      renderGitHubCalendar(sample.weeks, sample.total);
-    }
-
-    function generateSampleContributionWeeks() {
-      const weeks = [];
-      const now = new Date();
-      const startDate = new Date(now);
-      startDate.setDate(now.getDate() - 364);
-      let current = new Date(startDate);
-      let week = [];
-
-      while (current <= now) {
-        week.push({ date: current.toISOString().slice(0, 10), count: Math.floor(Math.random() * 9) });
-        if (current.getDay() === 6 || current >= now) {
-          weeks.push(week);
-          week = [];
-        }
-        current.setDate(current.getDate() + 1);
-      }
-
-      const total = weeks.flat().reduce((sum, day) => sum + day.count, 0);
-      return { weeks, total };
     }
 
     loadGitHubContributions();
