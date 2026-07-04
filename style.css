@@ -172,6 +172,26 @@ html.has-cursor-fx .cursor-fx {
   border-color: rgba(0, 217, 146, 0.6);
 }
 
+.cursor-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  background: conic-gradient(
+    from 0deg,
+    rgba(0, 217, 146, 0.22),
+    rgba(0, 217, 146, 0.05) 60deg,
+    transparent 90deg
+  );
+  animation: cursor-sweep-spin 2.6s linear infinite;
+}
+
+@keyframes cursor-sweep-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .cursor-ring {
   transition: opacity 160ms var(--ease), border-color 160ms var(--ease);
 }
