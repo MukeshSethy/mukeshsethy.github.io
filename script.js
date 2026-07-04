@@ -1493,6 +1493,30 @@
     const dot = $("#cursor-dot", root);
     if (!ring || !dot) return;
 
+    // Radar blips: random "contacts" inside the ring, repositioned each
+    // cycle while their fade animation has them invisible.
+    const BLIP_COUNT = 3;
+    const BLIP_CYCLE_MS = 2000;
+    function placeBlip(blip) {
+      const angle = Math.random() * Math.PI * 2;
+      // sqrt for even distribution over the disc; keep inside the border.
+      const radius = Math.sqrt(Math.random()) * 38;
+      blip.style.left = `${50 + radius * Math.cos(angle)}%`;
+      blip.style.top = `${50 + radius * Math.sin(angle)}%`;
+    }
+    for (let i = 0; i < BLIP_COUNT; i++) {
+      const blip = document.createElement("span");
+      blip.className = "cursor-blip";
+      const offset = (i * BLIP_CYCLE_MS) / BLIP_COUNT;
+      blip.style.animationDelay = `${offset}ms`;
+      placeBlip(blip);
+      ring.appendChild(blip);
+      // Each blip repositions at the start of its own cycle (opacity 0).
+      setTimeout(() => {
+        setInterval(() => placeBlip(blip), BLIP_CYCLE_MS);
+      }, offset);
+    }
+
     let tx = window.innerWidth * 0.5;
     let ty = window.innerHeight * 0.5;
     let dx = tx;
