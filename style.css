@@ -145,13 +145,11 @@ html.has-cursor-fx .cursor-fx {
 }
 
 .cursor-ring {
-  --s: 54px;
+  --s: 36px;
   width: var(--s);
   height: var(--s);
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(0, 217, 146, 0.26);
-  background: rgba(0, 217, 146, 0.04);
-  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(0, 217, 146, 0.35);
   transform: translate(
     calc(var(--cx, 50vw) - calc(var(--s) / 2)),
     calc(var(--cy, 50vh) - calc(var(--s) / 2))
@@ -171,11 +169,11 @@ html.has-cursor-fx .cursor-fx {
 }
 
 .cursor-fx.is-hover .cursor-ring {
-  border-color: rgba(0, 217, 146, 0.48);
+  border-color: rgba(0, 217, 146, 0.6);
 }
 
 .cursor-ring {
-  transition: opacity 160ms var(--ease);
+  transition: opacity 160ms var(--ease), border-color 160ms var(--ease);
 }
 
 .cursor-fx.over-calendar .cursor-ring {
