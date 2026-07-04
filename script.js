@@ -1114,7 +1114,7 @@
     });
 
     if (contactForm) {
-      contactForm.addEventListener("submit", (e) => {
+      contactForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const fd = new FormData(contactForm);
@@ -1123,28 +1123,63 @@
         const company = String(fd.get("company") || "").trim();
         const message = String(fd.get("message") || "").trim();
 
+        if (!name || !email || !message) {
+          showToast("Please fill in name, email, and message");
+          return;
+        }
+
         const topics = topicPills
           .filter((b) => b.classList.contains("is-active"))
           .map((b) => String(b.getAttribute("data-topic") || b.textContent || "").trim())
           .filter(Boolean);
 
         const subject = topics.length ? `Portfolio: ${topics.join(", ")}` : "Portfolio inquiry";
-        const bodyLines = [
-          `Name: ${name || "-"}`,
-          `Email: ${email || "-"}`,
-          `Company: ${company || "-"}`,
-          `Topics: ${topics.length ? topics.join(", ") : "-"}`,
-          "",
-          message || "",
-        ];
 
-        const mailto =
-          `mailto:${CONTACT_EMAIL}` +
-          `?subject=${encodeURIComponent(subject)}` +
-          `&body=${encodeURIComponent(bodyLines.join("\\n"))}`;
+        const submitButton = contactForm.querySelector(".send-button");
+        if (submitButton) submitButton.disabled = true;
+        showToast("Sending...");
 
-        showToast("Opening email client...");
-        window.location.href = mailto;
+        try {
+          // FormSubmit relays straight to the inbox — visitors never need an email client.
+          const response = await fetch(`https://formsubmit.co/ajax/${CONTACT_EMAIL}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({
+              name,
+              email,
+              company: company || "-",
+              topics: topics.length ? topics.join(", ") : "-",
+              message,
+              _subject: subject,
+              _template: "table",
+              _captcha: "false",
+            }),
+          });
+          if (!response.ok) throw new Error(`Send failed: ${response.status}`);
+          showToast("Message sent! I'll get back to you soon.");
+          contactForm.reset();
+          topicPills.forEach((b) => {
+            b.classList.remove("is-active");
+            b.setAttribute("aria-pressed", "false");
+          });
+        } catch (err) {
+          // Network/service failure: fall back to a prefilled mail draft so nothing is lost.
+          const bodyLines = [
+            `Name: ${name}`,
+            `Email: ${email}`,
+            `Company: ${company || "-"}`,
+            `Topics: ${topics.length ? topics.join(", ") : "-"}`,
+            "",
+            message,
+          ];
+          showToast("Direct send unavailable - opening email client...");
+          window.location.href =
+            `mailto:${CONTACT_EMAIL}` +
+            `?subject=${encodeURIComponent(subject)}` +
+            `&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+        } finally {
+          if (submitButton) submitButton.disabled = false;
+        }
       });
     }
 
