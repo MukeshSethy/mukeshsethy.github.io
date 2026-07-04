@@ -728,6 +728,21 @@
       return 0;
     }
 
+    function computeDynamicLevels(weeks) {
+      const allCounts = weeks.flat().map(d => d.count).filter(c => c > 0);
+      if (!allCounts.length) return weeks;
+      allCounts.sort((a, b) => a - b);
+      const q1 = allCounts[Math.floor(allCounts.length * 0.25)];
+      const q2 = allCounts[Math.floor(allCounts.length * 0.50)];
+      const q3 = allCounts[Math.floor(allCounts.length * 0.75)];
+      return weeks.map(week =>
+        week.map(day => ({
+          ...day,
+          level: day.count === 0 ? 0 : day.count <= q1 ? 1 : day.count <= q2 ? 2 : day.count <= q3 ? 3 : 4,
+        }))
+      );
+    }
+
     function positionTooltip(target) {
       if (!GITHUB_TOOLTIP || !target) return;
       const rect = target.getBoundingClientRect();
@@ -761,6 +776,7 @@
 
     function renderGitHubCalendar(weeks, total) {
       if (!GITHUB_CALENDAR || !GITHUB_MONTHS) return;
+      weeks = computeDynamicLevels(weeks);
       GITHUB_CALENDAR.innerHTML = "";
       GITHUB_MONTHS.innerHTML = "";
 
