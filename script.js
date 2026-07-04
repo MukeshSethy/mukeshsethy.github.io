@@ -782,7 +782,7 @@
         week.forEach((day, dayIndex) => {
           const button = document.createElement("button");
           button.type = "button";
-          button.className = `calendar-day level-${getContributionLevel(day.count)}`;
+          button.className = `calendar-day level-${day.level !== undefined ? Math.min(4, Math.max(0, day.level)) : getContributionLevel(day.count)}`;
           button.dataset.date = day.date;
           button.dataset.count = String(day.count);
           button.setAttribute("role", "gridcell");
@@ -879,14 +879,15 @@
             return lbl.trim() || null;
           })();
 
+          const rawLevel = cell.getAttribute("data-level");
+          const githubLevel = rawLevel !== null && rawLevel !== "" ? Number(rawLevel) : NaN;
           if (!Number.isFinite(count)) {
             count = parseCountFromTooltip(cell, doc);
           }
           if (!Number.isFinite(count)) {
-            const level = Number(cell.getAttribute("data-level") || "");
-            count = getContributionCountFromLevel(level);
+            count = Number.isFinite(githubLevel) ? getContributionCountFromLevel(githubLevel) : 0;
           }
-          weeks[columnIndex].push({ date, count, label: rawLabel });
+          weeks[columnIndex].push({ date, count, label: rawLabel, level: Number.isFinite(githubLevel) ? githubLevel : undefined });
         });
       });
 
@@ -996,7 +997,7 @@
             if (year && Array.isArray(year.weeks)) {
               const weeks = year.weeks.map((week) =>
                 Array.isArray(week.contributionDays)
-                  ? week.contributionDays.map((day) => ({ date: day.date, count: Number(day.count || 0) }))
+                  ? week.contributionDays.map((day) => ({ date: day.date, count: Number(day.count || 0), level: day.level !== undefined ? Number(day.level) : undefined }))
                   : []
               );
               renderGitHubCalendar(weeks, Number(year.total || 0));
