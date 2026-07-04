@@ -1515,6 +1515,7 @@ body.modal-open {
 .snapshot-img {
   position: relative;
   width: 100%;
+  height: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--hairline);
   filter: grayscale(18%) contrast(1.05) brightness(0.84);
