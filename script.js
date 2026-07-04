@@ -403,6 +403,8 @@
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
 
+  initVisitorCounter();
+
   // Ambient background FX (canvas).
   const ambientFxCanvas = $("#ambient-fx");
   if (ambientFxCanvas && !prefersReducedMotion && perf.tier === "high") {
@@ -478,6 +480,177 @@
     toTop.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
     });
+  }
+
+  function initVisitorCounter() {
+    const totalEls = $$("[data-visitor-total]");
+    const uniqueEls = $$("[data-visitor-unique]");
+    const pageEls = $$("[data-visitor-page]");
+    const sessionEls = $$("[data-visitor-session]");
+    const lastEls = $$("[data-visitor-last]");
+    const statusEls = $$("[data-visitor-status]");
+
+    if (
+      !totalEls.length &&
+      !uniqueEls.length &&
+      !pageEls.length &&
+      !sessionEls.length &&
+      !lastEls.length &&
+      !statusEls.length
+    ) {
+      return;
+    }
+
+    const storagePrefix = "msPortfolioVisitor";
+    const counterPrefix = "mukeshsethy_github_io_portfolio";
+    const apiBase = "https://countapi.mileshilliard.com/api/v1";
+    const pageName = String(document.body.getAttribute("data-page") || "home")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "") || "home";
+    const remoteEnabled =
+      location.protocol === "https:" &&
+      !/^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i.test(location.hostname || "");
+
+    function setAll(els, value) {
+      els.forEach((el) => {
+        el.textContent = value;
+      });
+    }
+
+    function numberText(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return "--";
+      try {
+        return new Intl.NumberFormat("en-IN").format(n);
+      } catch (_) {
+        return String(n);
+      }
+    }
+
+    function readStore(key) {
+      try {
+        return localStorage.getItem(`${storagePrefix}:${key}`);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function writeStore(key, value) {
+      try {
+        localStorage.setItem(`${storagePrefix}:${key}`, String(value));
+      } catch (_) {
+        // Ignore storage failures.
+      }
+    }
+
+    function readSession(key) {
+      try {
+        return sessionStorage.getItem(`${storagePrefix}:${key}`);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function writeSession(key, value) {
+      try {
+        sessionStorage.setItem(`${storagePrefix}:${key}`, String(value));
+      } catch (_) {
+        // Ignore storage failures.
+      }
+    }
+
+    function makeId() {
+      try {
+        if (crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+      } catch (_) {
+        // Fall through.
+      }
+      return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    }
+
+    function formatLastVisit(value) {
+      if (!value) return "First visit from this browser";
+      const d = new Date(value);
+      if (!Number.isFinite(d.getTime())) return "Not available";
+      try {
+        return d.toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch (_) {
+        return d.toISOString();
+      }
+    }
+
+    async function countApi(action, key) {
+      const res = await fetch(`${apiBase}/${action}/${encodeURIComponent(key)}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error(`Counter request failed: ${res.status}`);
+      const data = await res.json();
+      const value = Number(data && data.value);
+      if (!Number.isFinite(value)) throw new Error("Counter response missing value");
+      return value;
+    }
+
+    const previousLastVisit = readStore("lastVisit");
+    const localTotal = Number(readStore("localTotal") || 0) + 1;
+    const localPageKey = `localPage:${pageName}`;
+    const localPage = Number(readStore(localPageKey) || 0) + 1;
+    const sessionViews = Number(readSession("sessionViews") || 0) + 1;
+    const nowIso = new Date().toISOString();
+
+    let visitorId = readStore("id");
+    const isNewBrowser = !visitorId;
+    if (!visitorId) {
+      visitorId = makeId();
+      writeStore("id", visitorId);
+      writeStore("firstVisit", nowIso);
+    }
+
+    writeStore("lastVisit", nowIso);
+    writeStore("localTotal", localTotal);
+    writeStore(localPageKey, localPage);
+    writeSession("sessionViews", sessionViews);
+
+    setAll(totalEls, numberText(localTotal));
+    setAll(uniqueEls, isNewBrowser ? "1" : "Known");
+    setAll(pageEls, numberText(localPage));
+    setAll(sessionEls, numberText(sessionViews));
+    setAll(lastEls, formatLastVisit(previousLastVisit));
+    setAll(
+      statusEls,
+      remoteEnabled ? "Updating public counter..." : "Local preview - public counter paused"
+    );
+
+    if (!remoteEnabled) return;
+
+    const keys = {
+      total: `${counterPrefix}_total_views`,
+      unique: `${counterPrefix}_unique_browsers`,
+      page: `${counterPrefix}_page_${pageName}`,
+    };
+
+    Promise.all([
+      countApi("hit", keys.total),
+      countApi("hit", keys.page),
+      isNewBrowser
+        ? countApi("hit", keys.unique)
+        : countApi("get", keys.unique).catch(() => countApi("hit", keys.unique)),
+    ])
+      .then(([totalCount, pageCount, uniqueCount]) => {
+        setAll(totalEls, numberText(totalCount));
+        setAll(pageEls, numberText(pageCount));
+        setAll(uniqueEls, numberText(uniqueCount));
+        setAll(statusEls, "Live public counter active");
+      })
+      .catch(() => {
+        setAll(statusEls, "Counter unavailable - showing local browser counts");
+      });
   }
 
   // Non-critical enhancements: defer to idle time so initial load stays snappy.
