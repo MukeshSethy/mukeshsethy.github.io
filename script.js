@@ -1541,6 +1541,9 @@
       if (e.pointerType && e.pointerType !== "mouse") return;
       tx = e.clientX;
       ty = e.clientY;
+      // Hide the blurring ring over the calendar so day cells and tooltips stay readable.
+      const overCalendar = !!(e.target && e.target.closest && e.target.closest(".calendar-grid"));
+      root.classList.toggle("over-calendar", overCalendar);
       document.documentElement.classList.add("has-cursor-fx");
       visible = true;
       if (!raf) raf = window.requestAnimationFrame(step);
