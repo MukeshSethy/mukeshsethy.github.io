@@ -233,7 +233,21 @@
                 </article>
 
                 <article class="project-card" data-category="robotics">
-                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="project-media project-media-slideshow">
+                    <img src="../assets/nao-lab-setup.jpg" alt="NAO humanoid robot test arena setup in the lab" loading="lazy" />
+                    <img src="../assets/nao-robots-floor.jpg" alt="Fleet of NAO humanoid robots on the lab floor" loading="lazy" />
+                    <img src="../assets/nao-obstacle-course.jpg" alt="Building the foam obstacle course for NAO path planning tests" loading="lazy" />
+                    <button
+                      class="video-play video-play--badge"
+                      type="button"
+                      data-video-id="SuoAjoG_pSg"
+                      data-video-title="Path Planning for NAO Humanoid Robot - Master Thesis Demo"
+                      aria-label="Play video: Path Planning for NAO Humanoid Robot - Master Thesis Demo"
+                    >
+                      <span class="video-play-icon" aria-hidden="true"></span>
+                      Watch video
+                    </button>
+                  </div>
                   <div class="card-top">
                     <h3 class="card-title">Path Planning for NAO Humanoid Robot (Master Thesis)</h3>
                     <span class="pill">Robotics</span>
@@ -267,7 +281,11 @@
                 </article>
 
                 <article class="project-card" data-category="embedded">
-                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="project-media project-media-slideshow">
+                    <img src="../assets/pneumatic-shift-cylinder.jpg" alt="Pneumatic shift cylinder mounted in the engine bay" loading="lazy" />
+                    <img src="../assets/pneumatic-shift-regulator.jpg" alt="Air pressure regulator and solenoid valve block" loading="lazy" />
+                    <img src="../assets/pneumatic-shift-linkage.jpg" alt="Shift linkage connected to the gearbox selector fork" loading="lazy" />
+                  </div>
                   <div class="card-top">
                     <h3 class="card-title">Pneumatic Gear Shifting System</h3>
                     <span class="pill">Embedded / Controls</span>
@@ -318,7 +336,23 @@
                 </article>
 
                 <article class="project-card" data-category="embedded">
-                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="project-media">
+                    <img
+                      src="https://i.ytimg.com/vi/WLOPtq-0FBU/hqdefault.jpg"
+                      alt="Balloon Satellite Telemetry and Tracking video thumbnail"
+                      loading="lazy"
+                    />
+                    <button
+                      class="video-play"
+                      type="button"
+                      data-video-id="WLOPtq-0FBU"
+                      data-video-title="Balloon Satellite Telemetry and Tracking"
+                      aria-label="Play video: Balloon Satellite Telemetry and Tracking"
+                    >
+                      <span class="video-play-icon" aria-hidden="true"></span>
+                      Watch video
+                    </button>
+                  </div>
                   <div class="card-top">
                     <h3 class="card-title">Balloon Satellite Telemetry and Tracking</h3>
                     <span class="pill">Embedded / Controls</span>
@@ -335,29 +369,6 @@
               </div>
             </div>
           </section>
-
-          <div
-            class="modal"
-            id="project-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="project-modal-title"
-            hidden
-          >
-            <div class="modal-backdrop" data-modal-close aria-hidden="true"></div>
-            <div class="modal-dialog" role="document">
-              <button class="modal-close" type="button" data-modal-close aria-label="Close details"></button>
-              <div class="modal-media" aria-hidden="true"></div>
-              <div class="modal-body">
-                <div class="modal-kicker">
-                  <span class="pill" id="project-modal-pill"></span>
-                </div>
-                <h2 class="modal-title" id="project-modal-title"></h2>
-                <p class="muted" id="project-modal-desc"></p>
-                <ul class="chips" id="project-modal-chips" aria-label="Technologies"></ul>
-              </div>
-            </div>
-          </div>
         </main>
 
         <footer class="footer">
@@ -414,6 +425,29 @@
             </div>
           </div>
         </footer>
+      </div>
+    </div>
+
+    <div
+      class="modal"
+      id="project-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-modal-title"
+      hidden
+    >
+      <div class="modal-backdrop" data-modal-close aria-hidden="true"></div>
+      <div class="modal-dialog" role="document">
+        <button class="modal-close" type="button" data-modal-close aria-label="Close details"></button>
+        <div class="modal-media" aria-hidden="true"></div>
+        <div class="modal-body">
+          <div class="modal-kicker">
+            <span class="pill" id="project-modal-pill"></span>
+          </div>
+          <h2 class="modal-title" id="project-modal-title"></h2>
+          <p class="muted" id="project-modal-desc"></p>
+          <ul class="chips" id="project-modal-chips" aria-label="Technologies"></ul>
+        </div>
       </div>
     </div>
 

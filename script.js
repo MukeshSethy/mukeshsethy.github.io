@@ -1332,6 +1332,7 @@
 
     // Projects page: open a lightweight details modal using card content.
     const modal = $("#project-modal");
+    const modalMedia = $(".modal-media", modal);
     const modalTitle = $("#project-modal-title");
     const modalPill = $("#project-modal-pill");
     const modalDesc = $("#project-modal-desc");
@@ -1345,7 +1346,19 @@
       return $$(sel, root).filter((el) => el && el.offsetParent !== null);
     }
 
-    function openModalFromCard(card) {
+    function createVideoIframe(videoId, title) {
+      const iframe = document.createElement("iframe");
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      iframe.title = title || "Video";
+      iframe.setAttribute(
+        "allow",
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      );
+      iframe.allowFullscreen = true;
+      return iframe;
+    }
+
+    function openModalFromCard(card, opts) {
       if (!modal || !card || !modalTitle || !modalDesc) return;
       lastFocused = document.activeElement;
 
@@ -1367,6 +1380,23 @@
         });
       }
 
+      if (modalMedia) {
+        modalMedia.innerHTML = "";
+        const videoId = opts && opts.videoId;
+        if (videoId) {
+          modalMedia.appendChild(createVideoIframe(videoId, opts.videoTitle));
+          modalMedia.removeAttribute("aria-hidden");
+        } else {
+          const mediaEl = $(".project-media", card);
+          if (mediaEl && mediaEl.querySelector("img, iframe")) {
+            modalMedia.appendChild(mediaEl.cloneNode(true));
+            modalMedia.removeAttribute("aria-hidden");
+          } else {
+            modalMedia.setAttribute("aria-hidden", "true");
+          }
+        }
+      }
+
       modal.hidden = false;
       document.body.classList.add("modal-open");
       window.requestAnimationFrame(() => {
@@ -1382,6 +1412,7 @@
       document.body.classList.remove("modal-open");
       window.setTimeout(() => {
         modal.hidden = true;
+        if (modalMedia) modalMedia.innerHTML = "";
         if (lastFocused && lastFocused.focus) lastFocused.focus({ preventScroll: true });
       }, 240);
     }
@@ -1396,9 +1427,7 @@
         card.setAttribute("role", "button");
         card.setAttribute("aria-haspopup", "dialog");
         card.addEventListener("keydown", (e) => {
-          if (modal.hidden) {
-            // still allow open
-          }
+          if (e.target && e.target.closest && e.target.closest(".video-play")) return;
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             openModalFromCard(card);
@@ -1409,6 +1438,24 @@
       document.addEventListener("click", (e) => {
         const t = e.target;
         if (!t || !t.closest) return;
+        const playBtn = t.closest(".video-play");
+        if (playBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          const videoId = playBtn.getAttribute("data-video-id");
+          const videoTitle = playBtn.getAttribute("data-video-title");
+          if (playBtn.closest(".modal")) {
+            if (modalMedia) {
+              modalMedia.innerHTML = "";
+              modalMedia.appendChild(createVideoIframe(videoId, videoTitle));
+              modalMedia.removeAttribute("aria-hidden");
+            }
+          } else {
+            const card = playBtn.closest(".project-card");
+            if (card) openModalFromCard(card, { videoId, videoTitle });
+          }
+          return;
+        }
         const closeBtn = t.closest("[data-modal-close]");
         if (closeBtn && modal.contains(closeBtn)) {
           e.preventDefault();
