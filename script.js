@@ -1348,11 +1348,9 @@
       return $$(sel, root).filter((el) => el && el.offsetParent !== null);
     }
 
-    function createVideoIframe(videoId, title, playlist) {
+    function createVideoIframe(videoId, title) {
       const iframe = document.createElement("iframe");
-      let src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-      if (playlist) src += `&playlist=${playlist}`;
-      iframe.src = src;
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
       iframe.title = title || "Video";
       iframe.setAttribute(
         "allow",
@@ -1395,9 +1393,8 @@
 
     function loadVideoInModal(videoIds, index, title) {
       if (!modalMedia) return;
-      const remaining = videoIds.slice(index + 1).join(",");
       modalMedia.innerHTML = "";
-      modalMedia.appendChild(createVideoIframe(videoIds[index], title, remaining || null));
+      modalMedia.appendChild(createVideoIframe(videoIds[index], title));
       modalMedia.removeAttribute("aria-hidden");
       renderVideoTabs(videoIds, index, title);
       if (modalDialog) modalDialog.classList.toggle("has-tabs", videoIds.length > 1);
