@@ -1334,6 +1334,7 @@
     const modal = $("#project-modal");
     const modalDialog = $(".modal-dialog", modal);
     const modalMedia = $(".modal-media", modal);
+    const modalVideoTabs = $(".modal-video-tabs", modal);
     const modalTitle = $("#project-modal-title");
     const modalPill = $("#project-modal-pill");
     const modalDesc = $("#project-modal-desc");
@@ -1347,9 +1348,11 @@
       return $$(sel, root).filter((el) => el && el.offsetParent !== null);
     }
 
-    function createVideoIframe(videoId, title) {
+    function createVideoIframe(videoId, title, playlist) {
       const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      let src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      if (playlist) src += `&playlist=${playlist}`;
+      iframe.src = src;
       iframe.title = title || "Video";
       iframe.setAttribute(
         "allow",
@@ -1371,14 +1374,40 @@
       });
     }
 
-    function openVideoModal(videoId, title) {
+    function renderVideoTabs(videoIds, activeIndex, title) {
+      if (!modalVideoTabs) return;
+      modalVideoTabs.innerHTML = "";
+      if (videoIds.length < 2) {
+        modalVideoTabs.hidden = true;
+        return;
+      }
+      modalVideoTabs.hidden = false;
+      videoIds.forEach((id, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = String(i + 1);
+        btn.setAttribute("aria-label", `Play video ${i + 1} of ${videoIds.length}`);
+        if (i === activeIndex) btn.classList.add("is-active");
+        btn.addEventListener("click", () => loadVideoInModal(videoIds, i, title));
+        modalVideoTabs.appendChild(btn);
+      });
+    }
+
+    function loadVideoInModal(videoIds, index, title) {
+      if (!modalMedia) return;
+      const remaining = videoIds.slice(index + 1).join(",");
+      modalMedia.innerHTML = "";
+      modalMedia.appendChild(createVideoIframe(videoIds[index], title, remaining || null));
+      modalMedia.removeAttribute("aria-hidden");
+      renderVideoTabs(videoIds, index, title);
+      if (modalDialog) modalDialog.classList.toggle("has-tabs", videoIds.length > 1);
+    }
+
+    function openVideoModal(videoId, title, playlist) {
       if (!modal || !videoId) return;
       if (modalDialog) modalDialog.classList.add("is-video-only");
-      if (modalMedia) {
-        modalMedia.innerHTML = "";
-        modalMedia.appendChild(createVideoIframe(videoId, title));
-        modalMedia.removeAttribute("aria-hidden");
-      }
+      const videoIds = [videoId, ...(playlist ? playlist.split(",").map((s) => s.trim()).filter(Boolean) : [])];
+      loadVideoInModal(videoIds, 0, title);
       showModal();
     }
 
@@ -1403,7 +1432,8 @@
         });
       }
 
-      if (modalDialog) modalDialog.classList.remove("is-video-only");
+      if (modalDialog) modalDialog.classList.remove("is-video-only", "has-tabs");
+      if (modalVideoTabs) modalVideoTabs.innerHTML = "";
 
       if (modalMedia) {
         modalMedia.innerHTML = "";
@@ -1426,7 +1456,8 @@
       window.setTimeout(() => {
         modal.hidden = true;
         if (modalMedia) modalMedia.innerHTML = "";
-        if (modalDialog) modalDialog.classList.remove("is-video-only");
+        if (modalVideoTabs) modalVideoTabs.innerHTML = "";
+        if (modalDialog) modalDialog.classList.remove("is-video-only", "has-tabs");
         if (lastFocused && lastFocused.focus) lastFocused.focus({ preventScroll: true });
       }, 240);
     }
@@ -1456,7 +1487,11 @@
         if (playBtn) {
           e.preventDefault();
           e.stopPropagation();
-          openVideoModal(playBtn.getAttribute("data-video-id"), playBtn.getAttribute("data-video-title"));
+          openVideoModal(
+            playBtn.getAttribute("data-video-id"),
+            playBtn.getAttribute("data-video-title"),
+            playBtn.getAttribute("data-video-playlist")
+          );
           return;
         }
         const closeBtn = t.closest("[data-modal-close]");
