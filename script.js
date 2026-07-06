@@ -1359,9 +1359,31 @@
       return iframe;
     }
 
-    function openModalFromCard(card, opts) {
-      if (!modal || !card || !modalTitle || !modalDesc) return;
+    function showModal() {
+      if (!modal) return;
       lastFocused = document.activeElement;
+      modal.hidden = false;
+      document.body.classList.add("modal-open");
+      window.requestAnimationFrame(() => {
+        modal.classList.add("is-open");
+        const focusables = getFocusable(modal);
+        (focusables[0] || modal).focus({ preventScroll: true });
+      });
+    }
+
+    function openVideoModal(videoId, title) {
+      if (!modal || !videoId) return;
+      if (modalDialog) modalDialog.classList.add("is-video-only");
+      if (modalMedia) {
+        modalMedia.innerHTML = "";
+        modalMedia.appendChild(createVideoIframe(videoId, title));
+        modalMedia.removeAttribute("aria-hidden");
+      }
+      showModal();
+    }
+
+    function openModalFromCard(card) {
+      if (!modal || !card || !modalTitle || !modalDesc) return;
 
       const titleEl = $(".card-title", card);
       const pillEl = $(".pill", card);
@@ -1381,32 +1403,20 @@
         });
       }
 
-      const videoId = opts && opts.videoId;
-      if (modalDialog) modalDialog.classList.toggle("is-video-only", Boolean(videoId));
+      if (modalDialog) modalDialog.classList.remove("is-video-only");
 
       if (modalMedia) {
         modalMedia.innerHTML = "";
-        if (videoId) {
-          modalMedia.appendChild(createVideoIframe(videoId, opts.videoTitle));
+        const mediaEl = $(".project-media", card);
+        if (mediaEl && mediaEl.querySelector("img, iframe")) {
+          modalMedia.appendChild(mediaEl.cloneNode(true));
           modalMedia.removeAttribute("aria-hidden");
         } else {
-          const mediaEl = $(".project-media", card);
-          if (mediaEl && mediaEl.querySelector("img, iframe")) {
-            modalMedia.appendChild(mediaEl.cloneNode(true));
-            modalMedia.removeAttribute("aria-hidden");
-          } else {
-            modalMedia.setAttribute("aria-hidden", "true");
-          }
+          modalMedia.setAttribute("aria-hidden", "true");
         }
       }
 
-      modal.hidden = false;
-      document.body.classList.add("modal-open");
-      window.requestAnimationFrame(() => {
-        modal.classList.add("is-open");
-        const focusables = getFocusable(modal);
-        (focusables[0] || modal).focus({ preventScroll: true });
-      });
+      showModal();
     }
 
     function closeModal() {
@@ -1446,19 +1456,7 @@
         if (playBtn) {
           e.preventDefault();
           e.stopPropagation();
-          const videoId = playBtn.getAttribute("data-video-id");
-          const videoTitle = playBtn.getAttribute("data-video-title");
-          if (playBtn.closest(".modal")) {
-            if (modalDialog) modalDialog.classList.add("is-video-only");
-            if (modalMedia) {
-              modalMedia.innerHTML = "";
-              modalMedia.appendChild(createVideoIframe(videoId, videoTitle));
-              modalMedia.removeAttribute("aria-hidden");
-            }
-          } else {
-            const card = playBtn.closest(".project-card");
-            if (card) openModalFromCard(card, { videoId, videoTitle });
-          }
+          openVideoModal(playBtn.getAttribute("data-video-id"), playBtn.getAttribute("data-video-title"));
           return;
         }
         const closeBtn = t.closest("[data-modal-close]");
