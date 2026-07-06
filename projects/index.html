@@ -6,13 +6,13 @@
     <title>Projects | Mukesh Sethy</title>
     <meta
       name="description"
-      content="Projects by Mukesh Sethy across ASRS robotics, embedded debugging, RTOS firmware, e-Citaro analytics, Cooling Control Unit ECU ownership, NAO robot path planning, and vehicle systems."
+      content="Academic projects by Mukesh Sethy: NAO humanoid robot path planning, automatic launch control, pneumatic gear shifting, Formula SAE data acquisition, and balloon satellite telemetry."
     />
 
     <meta property="og:title" content="Projects | Mukesh Sethy" />
     <meta
       property="og:description"
-      content="Resume-aligned robotics, EV, RTOS firmware, embedded controls, and data analytics projects by Mukesh Sethy."
+      content="Academic robotics and embedded controls projects by Mukesh Sethy, from NAO humanoid path planning to balloon satellite telemetry."
     />
     <meta property="og:type" content="website" />
 
@@ -79,8 +79,8 @@
               <p class="eyebrow">Projects</p>
               <h1 class="page-title">Projects</h1>
               <p class="muted page-lead">
-                Selected professional and academic systems from my latest resume, with reserved media spaces for project
-                and company images.
+                Academic projects from my latest resume, spanning humanoid robotics, vehicle controls, and satellite
+                telemetry.
               </p>
             </div>
           </section>
@@ -99,139 +99,12 @@
                 <button class="filter-button" type="button" data-filter="robotics" aria-pressed="false">
                   Robotics
                 </button>
-                <button
-                  class="filter-button"
-                  type="button"
-                  data-filter="ev-automotive"
-                  aria-pressed="false"
-                >
-                  EV / Automotive
-                </button>
                 <button class="filter-button" type="button" data-filter="embedded" aria-pressed="false">
                   Embedded / Controls
-                </button>
-                <button class="filter-button" type="button" data-filter="data" aria-pressed="false">
-                  Data / Tooling
                 </button>
               </div>
 
               <div class="cards-grid" id="project-grid">
-                <article class="project-card" data-category="robotics">
-                  <div class="project-media" aria-hidden="true">
-                    <!-- Reserved space for project/company images: you can place an <img> here later. -->
-                  </div>
-                  <div class="card-top">
-                    <h3 class="card-title">ASRS Robot Mechatronics + Field RCA</h3>
-                    <span class="pill">Robotics</span>
-                  </div>
-                  <p class="muted">
-                    L3 support and mechatronics development for ASRS robots, including C++/Python debugging, field issue
-                    resolution, and reliability improvements.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>Mechatronics</li>
-                    <li>C++/Python</li>
-                    <li>ROS/Linux</li>
-                    <li>Diagnostics</li>
-                    <li>RCA</li>
-                    <li>Field support</li>
-                  </ul>
-                </article>
-
-                <article class="project-card" data-category="embedded">
-                  <div class="project-media" aria-hidden="true"></div>
-                  <div class="card-top">
-                    <h3 class="card-title">RTOS Firmware + Robotics Subsystem Debugging</h3>
-                    <span class="pill">Embedded / Controls</span>
-                  </div>
-                  <p class="muted">
-                    RTOS-based firmware work on ESP32/STM32 and C++/Python debugging across mobile robots, battery
-                    exchangers, elevators, and other ASRS subsystems.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>RTOS</li>
-                    <li>ESP32</li>
-                    <li>STM32</li>
-                    <li>C++</li>
-                    <li>Python</li>
-                  </ul>
-                </article>
-
-                <article class="project-card" data-category="robotics">
-                  <div class="project-media" aria-hidden="true"></div>
-                  <div class="card-top">
-                    <h3 class="card-title">Nvidia Orin Nano ROS/Linux Robotics Functions</h3>
-                    <span class="pill">Robotics</span>
-                  </div>
-                  <p class="muted">
-                    Robotics solution development on Nvidia Orin Nano using Linux and ROS while driving new ASRS
-                    functions and system enhancements.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>Nvidia Orin Nano</li>
-                    <li>Linux</li>
-                    <li>ROS</li>
-                    <li>ASRS</li>
-                  </ul>
-                </article>
-
-                <article class="project-card" data-category="data">
-                  <div class="project-media" aria-hidden="true"></div>
-                  <div class="card-top">
-                    <h3 class="card-title">e-Citaro Field Data Analytics + CAN Signal Visualization</h3>
-                    <span class="pill">Data / Tooling</span>
-                  </div>
-                  <p class="muted">
-                    Imported and processed logged system data from electric buses for monitoring. Built a Python GUI to
-                    visualize CAN signals and track cooling/HVAC behavior of high-voltage components.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>Python</li>
-                    <li>CAN</li>
-                    <li>Data processing</li>
-                    <li>GUI tooling</li>
-                    <li>EV systems</li>
-                  </ul>
-                </article>
-
-                <article class="project-card" data-category="ev-automotive">
-                  <div class="project-media" aria-hidden="true"></div>
-                  <div class="card-top">
-                    <h3 class="card-title">Cooling Control Unit ECU Ownership (Spec - SOP)</h3>
-                    <span class="pill">EV / Automotive</span>
-                  </div>
-                  <p class="muted">
-                    Component responsible (ECU owner) for a cooling control ECU. Managed specification, requirements, I/O
-                    design, customer/country variants, and production issue RCA.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>CAN</li>
-                    <li>Sensors</li>
-                    <li>Actuators</li>
-                    <li>ECU lifecycle</li>
-                    <li>TARA</li>
-                    <li>HARA</li>
-                  </ul>
-                </article>
-
-                <article class="project-card" data-category="ev-automotive">
-                  <div class="project-media" aria-hidden="true"></div>
-                  <div class="card-top">
-                    <h3 class="card-title">Thermal Test Bench for Electric Bus Validation</h3>
-                    <span class="pill">EV / Automotive</span>
-                  </div>
-                  <p class="muted">
-                    Built a thermal test bench using real bus components to validate cooling system behavior and support
-                    development and troubleshooting.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>Validation</li>
-                    <li>Thermal systems</li>
-                    <li>Test bench</li>
-                    <li>RCA</li>
-                  </ul>
-                </article>
-
                 <article class="project-card" data-category="robotics">
                   <div class="project-media project-media-slideshow">
                     <img src="../assets/nao-lab-setup.jpg" alt="NAO humanoid robot test arena setup in the lab" loading="lazy" />
@@ -330,23 +203,6 @@
                   </ul>
                 </article>
 
-                <article class="project-card" data-category="data">
-                  <div class="project-media" aria-hidden="true"></div>
-                  <div class="card-top">
-                    <h3 class="card-title">PLM + BOM Process Streamlining</h3>
-                    <span class="pill">Data / Tooling</span>
-                  </div>
-                  <p class="muted">
-                    Introduced PLM tooling and process to streamline BOM handling between engineering and supply chain.
-                  </p>
-                  <ul class="chips" aria-label="Technologies">
-                    <li>PLM</li>
-                    <li>BOM</li>
-                    <li>Process design</li>
-                    <li>Traceability</li>
-                  </ul>
-                </article>
-
                 <article class="project-card" data-category="embedded">
                   <div class="project-media">
                     <img
@@ -405,9 +261,7 @@
             <nav class="footer-col" aria-label="Project categories">
               <h3 class="footer-title">Projects</h3>
               <a class="footer-link" href="../projects/" data-mega-filter="robotics">Robotics</a>
-              <a class="footer-link" href="../projects/" data-mega-filter="ev-automotive">EV / Automotive</a>
               <a class="footer-link" href="../projects/" data-mega-filter="embedded">Embedded / Controls</a>
-              <a class="footer-link" href="../projects/" data-mega-filter="data">Data / Tooling</a>
             </nav>
 
             <div class="footer-col">

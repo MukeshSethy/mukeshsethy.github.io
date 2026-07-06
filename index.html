@@ -247,62 +247,98 @@
 
               <div class="cards-grid">
                 <article class="project-card" data-category="robotics">
-                  <div class="project-media" aria-hidden="true"></div>
+                  <div class="project-media project-media-slideshow">
+                    <img src="assets/nao-lab-setup.jpg" alt="NAO humanoid robot test arena setup in the lab" loading="lazy" />
+                    <img src="assets/nao-robots-floor.jpg" alt="Fleet of NAO humanoid robots on the lab floor" loading="lazy" />
+                    <img src="assets/nao-obstacle-course.jpg" alt="Building the foam obstacle course for NAO path planning tests" loading="lazy" />
+                    <button
+                      class="video-play video-play--badge"
+                      type="button"
+                      data-video-id="SuoAjoG_pSg"
+                      data-video-title="Path Planning for NAO Humanoid Robot - Master Thesis Demo"
+                      aria-label="Play video: Path Planning for NAO Humanoid Robot - Master Thesis Demo"
+                    >
+                      <span class="video-play-icon" aria-hidden="true"></span>
+                      Watch video
+                    </button>
+                  </div>
                   <div class="card-top">
-                    <h3 class="card-title">ASRS Robot Mechatronics + Field RCA</h3>
+                    <h3 class="card-title">Path Planning for NAO Humanoid Robot (Master Thesis)</h3>
                     <span class="pill">Robotics</span>
                   </div>
                   <p class="muted">
-                    L3 support and mechatronics development for ASRS robots, including C++/Python firmware debugging,
-                    multi-site RCA, and reliability improvements.
+                    Developed AI-based robot localization, obstacle mapping, and path planning using RGB-D camera data.
                   </p>
                   <ul class="chips" aria-label="Technologies">
-                    <li>Mechatronics</li>
-                    <li>C++/Python</li>
-                    <li>ROS/Linux</li>
-                    <li>Diagnostics</li>
-                    <li>RCA</li>
-                    <li>Field support</li>
+                    <li>Localization</li>
+                    <li>Mapping</li>
+                    <li>Path planning</li>
+                    <li>RGB-D</li>
+                    <li>Computer vision</li>
                   </ul>
                 </article>
 
-                <article class="project-card" data-category="data">
-                  <div class="project-media" aria-hidden="true"></div>
+                <article class="project-card" data-category="embedded">
+                  <div class="project-media project-media-slideshow has-5">
+                    <img src="assets/pneumatic-shift-cylinder.jpg" alt="Pneumatic shift cylinder mounted in the engine bay" loading="lazy" />
+                    <img src="assets/pneumatic-shift-regulator.jpg" alt="Air pressure regulator and solenoid valve block" loading="lazy" />
+                    <img src="assets/pneumatic-shift-linkage.jpg" alt="Shift linkage connected to the gearbox selector fork" loading="lazy" />
+                    <img src="assets/pneumatic-shift-hpa-tank.jpg" alt="Ninja 68ci 4500psi HPA tank and regulator kit unboxed" loading="lazy" />
+                    <img src="assets/pneumatic-shift-tank-regulator.jpg" alt="Fitting the regulator onto the carbon fiber HPA tank" loading="lazy" class="focus-bottom" />
+                    <button
+                      class="video-play video-play--badge"
+                      type="button"
+                      data-video-id="r4yeg9DFiOc"
+                      data-video-title="Pneumatic Gear Shifting System Demo"
+                      aria-label="Play video: Pneumatic Gear Shifting System Demo"
+                    >
+                      <span class="video-play-icon" aria-hidden="true"></span>
+                      Watch video
+                    </button>
+                  </div>
                   <div class="card-top">
-                    <h3 class="card-title">e-Citaro Field Data Analytics + CAN Signal Visualization</h3>
-                    <span class="pill">Data / Tooling</span>
+                    <h3 class="card-title">Pneumatic Gear Shifting System</h3>
+                    <span class="pill">Embedded / Controls</span>
                   </div>
                   <p class="muted">
-                    Imported and processed logged system data from electric buses for monitoring. Built a Python GUI to
-                    visualize CAN signals and track cooling/HVAC behavior of high-voltage components.
+                    Designed a semi-automatic gear shifting system controlled by a microcontroller and ECU.
                   </p>
                   <ul class="chips" aria-label="Technologies">
-                    <li>Python</li>
-                    <li>CAN</li>
-                    <li>Data processing</li>
-                    <li>GUI tooling</li>
-                    <li>EV systems</li>
-                    <li>MIL/SIL/HIL</li>
+                    <li>Microcontroller</li>
+                    <li>Actuation</li>
+                    <li>ECU concepts</li>
                   </ul>
                 </article>
 
-                <article class="project-card" data-category="ev-automotive">
-                  <div class="project-media" aria-hidden="true"></div>
+                <article class="project-card" data-category="embedded">
+                  <div class="project-media">
+                    <img
+                      src="https://i.ytimg.com/vi/WLOPtq-0FBU/hqdefault.jpg"
+                      alt="Balloon Satellite Telemetry and Tracking video thumbnail"
+                      loading="lazy"
+                    />
+                    <button
+                      class="video-play video-play--badge"
+                      type="button"
+                      data-video-id="WLOPtq-0FBU"
+                      data-video-title="Balloon Satellite Telemetry and Tracking"
+                      aria-label="Play video: Balloon Satellite Telemetry and Tracking"
+                    >
+                      <span class="video-play-icon" aria-hidden="true"></span>
+                      Watch video
+                    </button>
+                  </div>
                   <div class="card-top">
-                    <h3 class="card-title">Cooling Control Unit ECU Ownership (Spec - SOP)</h3>
-                    <span class="pill">EV / Automotive</span>
+                    <h3 class="card-title">Balloon Satellite Telemetry and Tracking</h3>
+                    <span class="pill">Embedded / Controls</span>
                   </div>
                   <p class="muted">
-                    Component responsible (ECU owner) for a cooling control ECU. Managed specification, requirements, I/O
-                    design, customer/country variants, and production issue RCA.
+                    Led the electronics team to build a sensor/camera payload for atmospheric data logging and recovery.
                   </p>
                   <ul class="chips" aria-label="Technologies">
-                    <li>CAN</li>
+                    <li>Telemetry</li>
                     <li>Sensors</li>
-                    <li>Actuators</li>
-                    <li>ECU lifecycle</li>
-                    <li>TARA</li>
-                    <li>HARA</li>
+                    <li>Data logging</li>
                   </ul>
                 </article>
               </div>
@@ -455,9 +491,7 @@
             <nav class="footer-col" aria-label="Project categories">
               <h3 class="footer-title">Projects</h3>
               <a class="footer-link" href="projects/" data-mega-filter="robotics">Robotics</a>
-              <a class="footer-link" href="projects/" data-mega-filter="ev-automotive">EV / Automotive</a>
               <a class="footer-link" href="projects/" data-mega-filter="embedded">Embedded / Controls</a>
-              <a class="footer-link" href="projects/" data-mega-filter="data">Data / Tooling</a>
             </nav>
 
             <div class="footer-col">
@@ -487,6 +521,30 @@
             </div>
           </div>
         </footer>
+      </div>
+    </div>
+
+    <div
+      class="modal"
+      id="project-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-modal-title"
+      hidden
+    >
+      <div class="modal-backdrop" data-modal-close aria-hidden="true"></div>
+      <div class="modal-dialog" role="document">
+        <button class="modal-close" type="button" data-modal-close aria-label="Close details"></button>
+        <div class="modal-media" aria-hidden="true"></div>
+        <div class="modal-video-tabs" hidden></div>
+        <div class="modal-body">
+          <div class="modal-kicker">
+            <span class="pill" id="project-modal-pill"></span>
+          </div>
+          <h2 class="modal-title" id="project-modal-title"></h2>
+          <p class="muted" id="project-modal-desc"></p>
+          <ul class="chips" id="project-modal-chips" aria-label="Technologies"></ul>
+        </div>
       </div>
     </div>
 
