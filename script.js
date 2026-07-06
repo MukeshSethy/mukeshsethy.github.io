@@ -1332,6 +1332,7 @@
 
     // Projects page: open a lightweight details modal using card content.
     const modal = $("#project-modal");
+    const modalDialog = $(".modal-dialog", modal);
     const modalMedia = $(".modal-media", modal);
     const modalTitle = $("#project-modal-title");
     const modalPill = $("#project-modal-pill");
@@ -1380,9 +1381,11 @@
         });
       }
 
+      const videoId = opts && opts.videoId;
+      if (modalDialog) modalDialog.classList.toggle("is-video-only", Boolean(videoId));
+
       if (modalMedia) {
         modalMedia.innerHTML = "";
-        const videoId = opts && opts.videoId;
         if (videoId) {
           modalMedia.appendChild(createVideoIframe(videoId, opts.videoTitle));
           modalMedia.removeAttribute("aria-hidden");
@@ -1413,6 +1416,7 @@
       window.setTimeout(() => {
         modal.hidden = true;
         if (modalMedia) modalMedia.innerHTML = "";
+        if (modalDialog) modalDialog.classList.remove("is-video-only");
         if (lastFocused && lastFocused.focus) lastFocused.focus({ preventScroll: true });
       }, 240);
     }
@@ -1445,6 +1449,7 @@
           const videoId = playBtn.getAttribute("data-video-id");
           const videoTitle = playBtn.getAttribute("data-video-title");
           if (playBtn.closest(".modal")) {
+            if (modalDialog) modalDialog.classList.add("is-video-only");
             if (modalMedia) {
               modalMedia.innerHTML = "";
               modalMedia.appendChild(createVideoIframe(videoId, videoTitle));
