@@ -24,8 +24,17 @@
       type="font/woff2"
       crossorigin
     />
+    <script>
+      (function () {
+        var t = "holo";
+        try {
+          if (localStorage.getItem("site-theme") === "circuit") t = "circuit";
+        } catch (e) {}
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
     <link rel="stylesheet" href="../fonts.css" />
-    <link rel="stylesheet" href="../style.css?v=slide-fix-20260707b" />
+    <link rel="stylesheet" href="../style.css?v=holo-theme-20260707" />
   </head>
   <body data-page="experience">
     <div id="top" aria-hidden="true"></div>
@@ -60,6 +69,11 @@
               <a class="header-cta" href="../resume.pdf" download>Download CV</a>
               <span class="nav-indicator" id="nav-indicator" aria-hidden="true"></span>
             </nav>
+
+            <button class="theme-toggle" type="button" aria-pressed="true" aria-label="Switch theme">
+              <span class="theme-toggle-orb" aria-hidden="true"></span>
+              <span class="theme-toggle-label">Holo</span>
+            </button>
 
             <button
               class="nav-toggle"
@@ -240,6 +254,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="../script.js?v=slide-fix-20260707b"></script>
+    <script src="../script.js?v=holo-theme-20260707"></script>
   </body>
 </html>
