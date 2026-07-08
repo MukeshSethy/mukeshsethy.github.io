@@ -2652,42 +2652,6 @@ body.modal-open {
 }
 
 /* ============================================================
-   Theme toggle control (both themes)
-   ============================================================ */
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 14px 7px 9px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--hairline);
-  background: var(--canvas-soft);
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease), background 180ms var(--ease);
-}
-
-.theme-toggle:hover,
-.theme-toggle:focus-visible {
-  border-color: rgba(var(--brand-rgb), 0.55);
-  box-shadow: 0 0 14px rgba(var(--brand-rgb), 0.25);
-}
-
-.theme-toggle-orb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #ffffff 0%, var(--brand) 38%, var(--brand-deep) 100%);
-  box-shadow: 0 0 8px rgba(var(--brand-rgb), 0.8);
-  transition: box-shadow 180ms var(--ease);
-}
-
-/* ============================================================
    Theme: HOLO - holographic HUD. Void-indigo canvas, electric
    cyan + magenta accents, glass panels, aurora + scanlines.
    ============================================================ */
@@ -2908,12 +2872,6 @@ html[data-theme="holo"] .video-play:focus-visible .video-play-icon {
   box-shadow: 0 0 16px rgba(255, 43, 214, 0.6);
 }
 
-/* Toggle orb goes magenta-cyan in holo. */
-html[data-theme="holo"] .theme-toggle-orb {
-  background: radial-gradient(circle at 34% 30%, #ffffff 0%, #00e5ff 42%, #ff2bd6 100%);
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.8), 0 0 18px rgba(255, 43, 214, 0.4);
-}
-
 /* Calm everything down for reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   html[data-theme="holo"] .brand-mark {
@@ -2924,15 +2882,5 @@ html[data-theme="holo"] .theme-toggle-orb {
   html[data-theme="holo"] .offering-card:hover::after {
     animation: none;
     opacity: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .theme-toggle {
-    padding: 8px;
-  }
-
-  .theme-toggle-label {
-    display: none;
   }
 }

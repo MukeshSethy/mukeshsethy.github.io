@@ -114,62 +114,19 @@
       return `rgba(${r},${g},${b},${a})`;
     }
 
-    function compute() {
-      const brand = readVar("--brand", "#00d992");
-      const ink = readVar("--ink", "#f2f2f2");
-      const canvas = readVar("--canvas", "#101010");
-      return {
-        brand,
-        ink,
-        canvas,
-        brandRgb: parseRgb(brand) || { r: 0, g: 217, b: 146 },
-        inkRgb: parseRgb(ink) || { r: 242, g: 242, b: 242 },
-        canvasRgb: parseRgb(canvas) || { r: 16, g: 16, b: 16 },
-      };
-    }
+    const brand = readVar("--brand", "#00d992");
+    const ink = readVar("--ink", "#f2f2f2");
+    const canvas = readVar("--canvas", "#101010");
 
-    const state = Object.assign({ rgba }, compute());
-    state.refresh = () => {
-      Object.assign(state, compute());
+    return {
+      brand,
+      ink,
+      canvas,
+      brandRgb: parseRgb(brand) || { r: 0, g: 217, b: 146 },
+      inkRgb: parseRgb(ink) || { r: 242, g: 242, b: 242 },
+      canvasRgb: parseRgb(canvas) || { r: 16, g: 16, b: 16 },
+      rgba,
     };
-    return state;
-  })();
-
-  // Theme switcher: HOLO (futuristic) <-> CIRCUIT (classic). Persisted per browser.
-  (function initThemeSwitcher() {
-    const KEY = "site-theme";
-    const rootEl = document.documentElement;
-    const buttons = $$(".theme-toggle");
-
-    function current() {
-      return rootEl.getAttribute("data-theme") === "circuit" ? "circuit" : "holo";
-    }
-
-    function sync() {
-      const t = current();
-      buttons.forEach((btn) => {
-        btn.setAttribute("aria-pressed", String(t === "holo"));
-        btn.setAttribute("aria-label", `Switch to ${t === "holo" ? "Circuit" : "Holo"} theme`);
-        const label = $(".theme-toggle-label", btn);
-        if (label) label.textContent = t === "holo" ? "Holo" : "Circuit";
-      });
-    }
-
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const next = current() === "holo" ? "circuit" : "holo";
-        rootEl.setAttribute("data-theme", next);
-        try {
-          localStorage.setItem(KEY, next);
-        } catch (_) {
-          // Ignore.
-        }
-        theme.refresh();
-        sync();
-      });
-    });
-
-    sync();
   })();
 
   function runWhenIdle(cb, timeout = 650) {
@@ -2001,11 +1958,10 @@
     const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) return;
 
-    // Read via theme each frame so a live theme switch recolors the FX.
-    const brand = () => theme.brand;
-    const ink = () => theme.ink;
-    const hazeStop = () => theme.rgba(theme.brandRgb, 0.055);
-    const sweepStop = () => theme.rgba(theme.brandRgb, 0.06);
+    const brand = theme.brand;
+    const ink = theme.ink;
+    const hazeStop = theme.rgba(theme.brandRgb, 0.055);
+    const sweepStop = theme.rgba(theme.brandRgb, 0.06);
 
     let w = 1;
     let h = 1;
@@ -2078,7 +2034,7 @@
           h * 0.5,
           Math.max(w, h) * 0.7
         );
-        haze.addColorStop(0, hazeStop());
+        haze.addColorStop(0, hazeStop);
         haze.addColorStop(1, "rgba(0,0,0,0)");
       }
       ctx.fillStyle = haze;
@@ -2129,7 +2085,7 @@
 
           const alpha = Math.min(0.22, base + boost);
           ctx.globalAlpha = alpha;
-          ctx.strokeStyle = boost > 0.02 ? brand() : ink();
+          ctx.strokeStyle = boost > 0.02 ? brand : ink;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
@@ -2152,13 +2108,13 @@
         }
 
         ctx.globalAlpha = Math.min(0.26, glow);
-        ctx.fillStyle = brand();
+        ctx.fillStyle = brand;
         ctx.beginPath();
         ctx.arc(p.x, p.y, 1.25, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.globalAlpha = Math.min(0.14, glow * 0.75);
-        ctx.fillStyle = ink();
+        ctx.fillStyle = ink;
         ctx.beginPath();
         ctx.arc(p.x + 0.2, p.y + 0.2, 0.95, 0, Math.PI * 2);
         ctx.fill();
@@ -2170,7 +2126,7 @@
       ctx.globalCompositeOperation = "lighter";
       const sweep = ctx.createLinearGradient(sx, 0, sx + 220, 0);
       sweep.addColorStop(0, "rgba(0,0,0,0)");
-      sweep.addColorStop(0.5, sweepStop());
+      sweep.addColorStop(0.5, sweepStop);
       sweep.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = sweep;
       ctx.fillRect(0, 0, w, h);
@@ -2206,10 +2162,9 @@
     const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!hero || !ctx) return;
 
-    // Read via theme each frame so a live theme switch recolors the FX.
-    const brand = () => theme.brand;
-    const ink = () => theme.ink;
-    const fadeFill = () => theme.rgba(theme.canvasRgb, 0.085);
+    const brand = theme.brand;
+    const ink = theme.ink;
+    const fadeFill = theme.rgba(theme.canvasRgb, 0.085);
 
     let w = 1;
     let h = 1;
@@ -2323,7 +2278,7 @@
 
       // Fade previous frame (trail effect).
       ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = fadeFill();
+      ctx.fillStyle = fadeFill;
       ctx.fillRect(0, 0, w, h);
 
       // Draw new strokes (keep it subtle on the light theme).
@@ -2338,7 +2293,7 @@
       }
 
       // Avoid per-particle string allocations; use globalAlpha + fixed colors.
-      ctx.strokeStyle = brand();
+      ctx.strokeStyle = brand;
       ctx.lineWidth = 1.2;
 
       for (let i = 0; i < particles.length; i++) {
@@ -2384,13 +2339,13 @@
 
         if (drawWhite) {
           ctx.globalAlpha = a * 0.55;
-          ctx.strokeStyle = ink();
+          ctx.strokeStyle = ink;
           ctx.lineWidth = 0.9;
           ctx.beginPath();
           ctx.moveTo(ox + 0.4, oy + 0.2);
           ctx.lineTo(p.x + 0.4, p.y + 0.2);
           ctx.stroke();
-          ctx.strokeStyle = brand();
+          ctx.strokeStyle = brand;
         }
 
         // Glowing nodes (sampled for performance).
@@ -2398,14 +2353,14 @@
           const spd = Math.abs(p.vx) + Math.abs(p.vy);
           const g = Math.min(0.42, 0.12 + spd * 0.08);
           ctx.globalAlpha = g;
-          ctx.fillStyle = brand();
+          ctx.fillStyle = brand;
           ctx.beginPath();
           ctx.arc(p.x, p.y, nodeSize + p.s * 0.28, 0, Math.PI * 2);
           ctx.fill();
 
           if (drawWhite) {
             ctx.globalAlpha = g * 0.5;
-            ctx.fillStyle = ink();
+            ctx.fillStyle = ink;
             ctx.beginPath();
             ctx.arc(p.x + 0.4, p.y + 0.2, nodeSize * 0.78, 0, Math.PI * 2);
             ctx.fill();
