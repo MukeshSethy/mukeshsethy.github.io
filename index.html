@@ -22,9 +22,14 @@
     <link rel="preload" href="assets/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       (function () {
-        var t = "holo";
+        function dayDefault() {
+          var d = new Date().getDay();
+          return d === 1 || d === 2 || d === 3 ? "holo" : "circuit";
+        }
+        var t = dayDefault();
         try {
-          if (localStorage.getItem("site-theme") === "circuit") t = "circuit";
+          var stored = localStorage.getItem("site-theme");
+          if (stored === "holo" || stored === "circuit") t = stored;
         } catch (e) {}
         document.documentElement.setAttribute("data-theme", t);
       })();
