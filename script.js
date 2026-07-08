@@ -1350,7 +1350,7 @@
 
     function createVideoIframe(videoId, title) {
       const iframe = document.createElement("iframe");
-      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`;
       iframe.title = title || "Video";
       iframe.setAttribute(
         "allow",
