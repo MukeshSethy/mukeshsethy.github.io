@@ -26,20 +26,16 @@
     />
     <script>
       (function () {
-        function dayDefault() {
-          var d = new Date().getDay();
-          return d === 1 || d === 2 || d === 3 ? "holo" : "circuit";
-        }
-        var t = dayDefault();
+        var d = new Date().getDay();
+        var t = d === 1 || d === 2 || d === 3 ? "holo" : "circuit";
         try {
-          var stored = localStorage.getItem("site-theme");
-          if (stored === "holo" || stored === "circuit") t = stored;
+          localStorage.removeItem("site-theme");
         } catch (e) {}
         document.documentElement.setAttribute("data-theme", t);
       })();
     </script>
     <link rel="stylesheet" href="../fonts.css" />
-    <link rel="stylesheet" href="../style.css?v=nocookie-embed-20260708" />
+    <link rel="stylesheet" href="../style.css?v=theme-fix-20260709" />
   </head>
   <body data-page="experience">
     <div id="top" aria-hidden="true"></div>
@@ -254,6 +250,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="../script.js?v=nocookie-embed-20260708"></script>
+    <script src="../script.js?v=theme-fix-20260709"></script>
   </body>
 </html>
