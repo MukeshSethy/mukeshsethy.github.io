@@ -27,7 +27,7 @@
     <script>
       (function () {
         var d = new Date().getDay();
-        var t = d === 1 || d === 2 || d === 3 ? "holo" : "circuit";
+        var t = d === 1 || d === 3 || d === 5 ? "holo" : "circuit";
         try {
           localStorage.removeItem("site-theme");
         } catch (e) {}
@@ -35,7 +35,7 @@
       })();
     </script>
     <link rel="stylesheet" href="../fonts.css" />
-    <link rel="stylesheet" href="../style.css?v=theme-fix-20260709" />
+    <link rel="stylesheet" href="../style.css?v=mon-wed-fri-20260709" />
   </head>
   <body data-page="projects">
     <div id="top" aria-hidden="true"></div>
@@ -334,6 +334,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="../script.js?v=theme-fix-20260709"></script>
+    <script src="../script.js?v=mon-wed-fri-20260709"></script>
   </body>
 </html>
