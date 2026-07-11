@@ -129,6 +129,26 @@
     };
   })();
 
+  // Keep the day-based theme correct even if the tab is left open, restored
+  // from bfcache, or resumed from a stale snapshot across a day boundary.
+  (function keepThemeCurrent() {
+    function themeForToday() {
+      const d = new Date().getDay();
+      return d === 1 || d === 3 || d === 5 ? "holo" : "circuit";
+    }
+    function apply() {
+      const t = themeForToday();
+      if (document.documentElement.getAttribute("data-theme") !== t) {
+        document.documentElement.setAttribute("data-theme", t);
+      }
+    }
+    window.addEventListener("pageshow", apply);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") apply();
+    });
+    window.setInterval(apply, 15 * 60 * 1000);
+  })();
+
   function runWhenIdle(cb, timeout = 650) {
     try {
       if ("requestIdleCallback" in window) {
