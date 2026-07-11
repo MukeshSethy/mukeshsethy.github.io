@@ -134,7 +134,7 @@
   (function keepThemeCurrent() {
     function themeForToday() {
       const d = new Date().getDay();
-      return d === 1 || d === 3 || d === 5 ? "holo" : "circuit";
+      return d === 0 ? "blueprint" : d === 1 || d === 3 || d === 5 ? "holo" : "circuit";
     }
     function apply() {
       const t = themeForToday();

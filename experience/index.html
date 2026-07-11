@@ -27,7 +27,7 @@
     <script>
       (function () {
         var d = new Date().getDay();
-        var t = d === 1 || d === 3 || d === 5 ? "holo" : "circuit";
+        var t = d === 0 ? "blueprint" : d === 1 || d === 3 || d === 5 ? "holo" : "circuit";
         try {
           localStorage.removeItem("site-theme");
         } catch (e) {}
@@ -35,7 +35,7 @@
       })();
     </script>
     <link rel="stylesheet" href="../fonts.css" />
-    <link rel="stylesheet" href="../style.css?v=theme-recheck-20260711" />
+    <link rel="stylesheet" href="../style.css?v=blueprint-sunday-20260711" />
   </head>
   <body data-page="experience">
     <div id="top" aria-hidden="true"></div>
@@ -250,6 +250,6 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="../script.js?v=theme-recheck-20260711"></script>
+    <script src="../script.js?v=blueprint-sunday-20260711"></script>
   </body>
 </html>

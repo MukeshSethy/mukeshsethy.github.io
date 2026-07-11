@@ -2884,3 +2884,178 @@ html[data-theme="holo"] .video-play:focus-visible .video-play-icon {
     opacity: 0;
   }
 }
+
+/* ============================================================
+   Theme: BLUEPRINT - Sunday only. Cyanotype drafting sheet:
+   deep engineering blue, pale ink linework, a single amber
+   accent, mono-set headings styled like stenciled title-block
+   lettering. Deliberately calm - no glow, no motion.
+   ============================================================ */
+
+html[data-theme="blueprint"] {
+  --brand: #ffb400;
+  --brand-rgb: 255, 180, 0;
+  --brand-soft: #ffcb52;
+  --brand-deep: #cc8f00;
+  --accent-2: #eef5ff;
+  --accent-2-rgb: 238, 245, 255;
+  --on-brand: #082044;
+  --canvas: #0b2f5c;
+  --canvas-soft: #0e386b;
+  --surface: #0b2f5c;
+  --bg: #082044;
+  --canvas-night: #0b2f5c;
+  --canvas-night-soft: #0e386b;
+  --hairline: #2c5488;
+  --hairline-cool: rgba(238, 245, 255, 0.2);
+  --hairline-strong: #3f6ba0;
+  --ink: #eef5ff;
+  --ink-strong: #ffffff;
+  --body: #c7d9f2;
+  --mute: #9fb9db;
+  --mute-2: #9fb9db;
+  --ink-faint: #6f8db3;
+  --shadow: 0 20px 60px rgba(3, 13, 26, 0.7), inset 0 0 0 1px rgba(238, 245, 255, 0.06);
+  --shadow-soft: 0 0 18px rgba(255, 180, 0, 0.1);
+}
+
+/* Drafting-paper grid across the whole page. */
+html[data-theme="blueprint"] body {
+  background: var(--bg);
+  background-attachment: fixed;
+}
+
+html[data-theme="blueprint"] body::before {
+  background: repeating-linear-gradient(
+      0deg,
+      rgba(238, 245, 255, 0.05) 0,
+      rgba(238, 245, 255, 0.05) 1px,
+      transparent 1px,
+      transparent 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(238, 245, 255, 0.05) 0,
+      rgba(238, 245, 255, 0.05) 1px,
+      transparent 1px,
+      transparent 32px
+    );
+  opacity: 0.6;
+}
+
+html[data-theme="blueprint"] body::after {
+  content: none;
+}
+
+/* Flat title-block header, no blur. */
+html[data-theme="blueprint"] .site-header {
+  background: var(--canvas);
+  border-bottom: 1px solid var(--hairline-strong);
+}
+
+/* Headings set like stenciled drafting-sheet lettering. */
+html[data-theme="blueprint"] .page-title,
+html[data-theme="blueprint"] .section-title,
+html[data-theme="blueprint"] .hero-title,
+html[data-theme="blueprint"] .card-title,
+html[data-theme="blueprint"] .modal-title {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-shadow: none;
+}
+
+html[data-theme="blueprint"] .eyebrow {
+  color: var(--brand);
+  text-shadow: none;
+}
+
+/* Flat drafting panels: sharp corners, hairline border, one clipped corner. */
+html[data-theme="blueprint"] .project-card,
+html[data-theme="blueprint"] .timeline-card,
+html[data-theme="blueprint"] .offering-card,
+html[data-theme="blueprint"] .visitor-card,
+html[data-theme="blueprint"] .contributions-panel,
+html[data-theme="blueprint"] .resume-card,
+html[data-theme="blueprint"] .hero-panel {
+  background: var(--canvas-soft);
+  border: 1px solid var(--hairline);
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+  transition: border-color 160ms var(--ease), transform 160ms var(--ease);
+}
+
+html[data-theme="blueprint"] .project-card:hover,
+html[data-theme="blueprint"] .timeline-card:hover,
+html[data-theme="blueprint"] .offering-card:hover {
+  border-color: var(--brand);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+/* Stamped CTAs: sharp corners, offset "plotted" shadow. */
+html[data-theme="blueprint"] .header-cta,
+html[data-theme="blueprint"] .btn-black,
+html[data-theme="blueprint"] .send-button {
+  background: var(--brand);
+  color: var(--on-brand);
+  border: 0;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--bg), 3px 3px 0 1px var(--brand);
+}
+
+html[data-theme="blueprint"] .header-cta:hover,
+html[data-theme="blueprint"] .btn-black:hover,
+html[data-theme="blueprint"] .send-button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--bg), 4px 4px 0 1px var(--brand);
+}
+
+/* Pills, chips, filters: sharp and flat. */
+html[data-theme="blueprint"] .pill {
+  border-radius: 0;
+  border-color: var(--brand);
+}
+
+html[data-theme="blueprint"] .chips li {
+  border-radius: 0;
+  border-color: var(--hairline-strong);
+  background: rgba(238, 245, 255, 0.03);
+}
+
+html[data-theme="blueprint"] .filter-button.is-active {
+  border-radius: 0;
+  background: var(--brand);
+  color: var(--on-brand);
+}
+
+/* Brand mark: a still drafting-compass square, no pulse. */
+html[data-theme="blueprint"] .brand-mark {
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+/* Timeline + calendar accents. */
+html[data-theme="blueprint"] .timeline-dot {
+  border-radius: 0;
+  transform: rotate(45deg);
+}
+
+html[data-theme="blueprint"] .calendar-day.level-0 {
+  background: var(--canvas);
+}
+
+/* Watch-video badge inverts to ink-white on hover instead of glowing. */
+html[data-theme="blueprint"] .video-play-icon {
+  border-radius: 0;
+}
+
+html[data-theme="blueprint"] .video-play:hover .video-play-icon,
+html[data-theme="blueprint"] .video-play:focus-visible .video-play-icon {
+  background: var(--accent-2);
+}
+
+html[data-theme="blueprint"] .video-play:hover .video-play-icon::before,
+html[data-theme="blueprint"] .video-play:focus-visible .video-play-icon::before {
+  border-left-color: var(--on-brand);
+}
