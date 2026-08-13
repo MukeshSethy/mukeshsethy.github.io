@@ -2309,7 +2309,9 @@ body.modal-open {
 .calendar-month {
   position: absolute;
   top: 0;
-  transform: translateX(-0.5rem);
+  /* No translateX: a label's left edge sits on the left edge of its first week
+     column, the way GitHub does it. The old -0.5rem nudge pushed the very first
+     label past the container's left edge, which is why "Aug" rendered as "ug". */
   color: var(--body);
   font-size: 13px;
   white-space: nowrap;

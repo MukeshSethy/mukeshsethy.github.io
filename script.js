@@ -799,6 +799,43 @@
       GITHUB_TOOLTIP.style.opacity = "0";
     }
 
+    // Month labels have to line up with the day columns, and two things make
+    // that non-obvious:
+    //   1. #calendar-months spans the full scroll width, but .calendar-grid is
+    //      inset by the weekday-label gutter ("Mon"/"Wed"/"Fri" + its margin).
+    //      Ignoring that shifted every label left by ~30px.
+    //   2. The column pitch is (cell + gap) px -- NOT a percentage of the row.
+    //      Positioning by index/(weeks-1)*100% drifts progressively, because
+    //      100% is the container's width while the last column starts one full
+    //      gap short of it.
+    // Both are measured off the live layout here, so it also survives the
+    // responsive breakpoints that change cell size.
+    function positionCalendarMonths() {
+      if (!GITHUB_CALENDAR || !GITHUB_MONTHS) return;
+      const labels = Array.from(GITHUB_MONTHS.children);
+      if (!labels.length) return;
+
+      const cells = GITHUB_CALENDAR.querySelectorAll(".calendar-day");
+      if (!cells.length) return;
+
+      const styles = getComputedStyle(GITHUB_CALENDAR);
+      const cell = parseFloat(styles.gridAutoColumns) || cells[0].offsetWidth || 14;
+      const gap = parseFloat(styles.columnGap) || 6;
+      const pitch = cell + gap;
+
+      // Offset of the grid's first column inside the month row's coordinate box.
+      const gridLeft = GITHUB_CALENDAR.getBoundingClientRect().left;
+      const monthsLeft = GITHUB_MONTHS.getBoundingClientRect().left;
+      const gutter = gridLeft - monthsLeft;
+
+      labels.forEach((label) => {
+        const index = Number(label.dataset.weekIndex || 0);
+        label.style.left = `${Math.max(0, gutter + index * pitch)}px`;
+      });
+    }
+
+    window.addEventListener("resize", positionCalendarMonths);
+
     function renderGitHubCalendar(weeks, total) {
       if (!GITHUB_CALENDAR || !GITHUB_MONTHS) return;
       weeks = computeDynamicLevels(weeks);
@@ -850,13 +887,26 @@
         GITHUB_CALENDAR.appendChild(col);
       });
 
-      monthMarkers.forEach((marker) => {
+      // A 53-week window opens and closes in the same month, so the first and
+      // last marker are both e.g. "Aug". Drop the leading one when only a week
+      // or two of it is on screen: it has no room and collides with the next
+      // month's label. (GitHub does the same.)
+      const visibleMarkers = monthMarkers.filter((marker, i) => {
+        if (i !== 0) return true;
+        const nextIndex = monthMarkers[1] ? monthMarkers[1].index : weeks.length;
+        return nextIndex - marker.index >= 2;
+      });
+
+      visibleMarkers.forEach((marker) => {
         const label = document.createElement("span");
         label.className = "calendar-month";
         label.textContent = marker.label;
-        label.style.left = `${(marker.index / Math.max(1, weeks.length - 1)) * 100}%`;
+        label.dataset.weekIndex = String(marker.index);
         GITHUB_MONTHS.appendChild(label);
       });
+
+      // Position after layout, then keep it correct across resizes/breakpoints.
+      requestAnimationFrame(positionCalendarMonths);
 
       if (GITHUB_TOTAL) {
         GITHUB_TOTAL.textContent = `${total} contributions in the last year`;
